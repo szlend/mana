@@ -18,7 +18,7 @@ defmodule Mana.User do
   def validate_password(changeset) do
     changeset
     |> validate_length(:password, min: 8)
-    |> validate_confirmation(:password_confirmation)
+    |> validate_confirmation(:password)
   end
 
   def hash_password(changeset) do
