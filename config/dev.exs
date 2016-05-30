@@ -35,8 +35,5 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :mana, Mana.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
   database: "mana_dev",
-  hostname: "localhost",
   pool_size: 10
