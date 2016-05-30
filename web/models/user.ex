@@ -9,39 +9,40 @@ defmodule Mana.User do
     timestamps
   end
 
-  @required_fields ~w(username)
-  @optional_fields ~w()
-
-  def changeset(model, params \\ :empty) do
-    model
-    |> cast(params, @required_fields, @optional_fields)
-    |> validate_user
-  end
-
-  def validate_user(changeset) do
+  def validate_username(changeset) do
     changeset
     |> unique_constraint(:username)
     |> validate_format(:username, ~r/[a-zA-Z0-9]{3,}/)
+  end
+
+  def validate_password(changeset) do
+    changeset
+    |> validate_length(:password, min: 8)
+    |> validate_confirmation(:password_confirmation)
+  end
+
+  def hash_password(changeset) do
+    if password = get_change(changeset, :password) do
+      encrypted_password = Comeonin.Bcrypt.hashpwsalt(password)
+      put_change(changeset, :encrypted_password, encrypted_password)
+    else
+      changeset
+    end
   end
 end
 
 defmodule Mana.User.Registration do
   import Ecto.Changeset
-  import Mana.User, only: [validate_user: 1]
+  import Mana.User
 
-  @required_fields ~w(username password)
+  @required_fields ~w(username password password_confirmation)
   @optional_fields ~w()
 
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields, @optional_fields)
-    |> validate_length(:password, min: 8)
-    |> validate_confirmation(:password)
-    |> put_change(:encrypted_password, hash_password(params[:password]))
-    |> validate_user
-  end
-
-  defp hash_password(password) do
-    Comeonin.Bcrypt.hashpwsalt(password)
+    |> validate_username
+    |> validate_password
+    |> hash_password
   end
 end
