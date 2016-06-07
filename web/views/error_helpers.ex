@@ -32,4 +32,21 @@ defmodule Mana.ErrorHelpers do
   def translate_error(msg) do
     Gettext.dgettext(Mana.Gettext, "errors", msg)
   end
+
+  def fieldset_tag(form, field, options, [do: block]) when is_list(options) do
+    {error_class, options} = Keyword.pop(options, :error_class, "")
+    case error_tag(form, field) do
+      nil ->
+        content_tag(:fieldset, block, options)
+      error_tag ->
+        options = fieldset_options_with_error(options, error_class)
+        content_tag(:fieldset, [block, error_tag], options)
+    end
+  end
+
+  defp fieldset_options_with_error(options, error_class) do
+    {class, options} = Keyword.pop(options, :class)
+    class = String.strip("#{class} #{error_class}")
+    [{:class, class} | options]
+  end
 end
