@@ -33,6 +33,10 @@ defmodule Mana.ErrorHelpers do
     Gettext.dgettext(Mana.Gettext, "errors", msg)
   end
 
+  def fieldset_tag(form, field, [do: block]) do
+    fieldset_tag(form, field, [], [do: block])
+  end
+
   def fieldset_tag(form, field, options, [do: block]) when is_list(options) do
     {error_class, options} = Keyword.pop(options, :error_class, "")
     case error_tag(form, field) do
