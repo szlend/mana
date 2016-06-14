@@ -1,3 +1,5 @@
+![BATTLEPAN](https://s-media-cache-ak0.pinimg.com/736x/f4/9f/9c/f49f9c8fda9c6443efe389989aeb04f9.jpg)
+
 # Mana project
 * rooms
 * players
@@ -23,3 +25,26 @@
   * sign_in
   * sign_out
   * show
+
+
+# 14.06.2016
+
+* Registration
+* Upgrade to Phoenix 1.2
+* Define Game models
+
+* Models
+  * Game
+    * name
+    * status
+
+  * GamePlayers
+    * user_id
+    * game_id
+    * color
+
+  * GameMove
+    * game_id
+    * user_id
+    * pos_x
+    * pos_y
