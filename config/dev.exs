@@ -37,3 +37,6 @@ config :mana, Mana.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: "mana_dev",
   pool_size: 10
+
+config :guardian, Guardian,
+  secret_key: "uyE5qrCDyIPW0nL3q49XSgLuDdqtE7XcMX1yKD4m5b01exJvNoTUwhp52H23L3rf"

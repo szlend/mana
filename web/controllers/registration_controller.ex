@@ -10,9 +10,11 @@ defmodule Mana.RegistrationController do
   def create(conn, %{"user" => user}) do
     changeset = User.Registration.changeset(%User{}, user)
     case Repo.insert(changeset) do
-      {:ok, _} ->
-        # to-do: actually sign in user
-        redirect conn, to: "/"
+      {:ok, user} ->
+        conn
+        |> Guardian.Plug.sign_in(user)
+        |> put_flash(:info, "Registered successfully.")
+        |> redirect(to: "/")
       {:error, changeset} ->
         conn
         |> put_flash(:error, "Registration error.")
