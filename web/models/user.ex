@@ -12,11 +12,13 @@ defmodule Mana.User do
   def validate_username(changeset) do
     changeset
     |> unique_constraint(:username)
+    |> validate_required(:username)
     |> validate_format(:username, ~r/[a-zA-Z0-9]{3,}/)
   end
 
   def validate_password(changeset) do
     changeset
+    |> validate_required([:password, :password_confirmation])
     |> validate_length(:password, min: 8)
     |> validate_confirmation(:password)
   end
@@ -35,12 +37,9 @@ defmodule Mana.User.Registration do
   import Ecto.Changeset
   import Mana.User
 
-  @required_fields ~w(username password password_confirmation)
-  @optional_fields ~w()
-
-  def changeset(model, params \\ :empty) do
-    model
-    |> cast(params, @required_fields, @optional_fields)
+  def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, [:username, :password, :password_confirmation])
     |> validate_username
     |> validate_password
     |> hash_password
