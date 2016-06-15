@@ -2,6 +2,8 @@ defmodule Mana.RegistrationController do
   use Mana.Web, :controller
   alias Mana.User.RegistrationCommand
 
+  plug :scrub_params, "registration" when action in [:create]
+
   def new(conn, _params) do
     changeset = RegistrationCommand.prepare()
     render(conn, "new.html", %{changeset: changeset})
