@@ -5,6 +5,10 @@
 # is restricted to this project.
 use Mix.Config
 
+# General application configuration
+config :pamoja_demo,
+  ecto_repos: [Mana.Repo]
+
 # Configures the endpoint
 config :mana, Mana.Endpoint,
   url: [host: "localhost"],
