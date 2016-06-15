@@ -12,7 +12,6 @@ config :mana,
 # Configures the endpoint
 config :mana, Mana.Endpoint,
   url: [host: "localhost"],
-  root: Path.dirname(__DIR__),
   secret_key_base: "wlR2fnLnP2Xuw9QFRKueKd6gharfViEFTUO7PYZwrTnUBSl3lFIhEOW1Cq/Twxd1",
   render_errors: [accepts: ~w(html json)],
   pubsub: [name: Mana.PubSub,
@@ -22,10 +21,6 @@ config :mana, Mana.Endpoint,
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
-
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
 
 # Configure phoenix generators
 config :phoenix, :generators,
@@ -38,4 +33,9 @@ config :guardian, Guardian,
   issuer: "Mana",
   ttl: { 30, :days },
   verify_issuer: true,
-  serializer: Mana.GuardianSerializer
+  serializer: Mana.GuardianSerializer,
+  secret_key: "uyE5qrCDyIPW0nL3q49XSgLuDdqtE7XcMX1yKD4m5b01exJvNoTUwhp52H23L3rf"
+
+# Import environment specific config. This must remain at the bottom
+# of this file so it overrides the configuration defined above.
+import_config "#{Mix.env}.exs"

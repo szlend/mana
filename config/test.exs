@@ -12,8 +12,5 @@ config :logger, level: :warn
 # Configure your database
 config :mana, Mana.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
   database: "mana_test",
-  hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
