@@ -6,7 +6,7 @@
 use Mix.Config
 
 # General application configuration
-config :pamoja_demo,
+config :mana,
   ecto_repos: [Mana.Repo]
 
 # Configures the endpoint
