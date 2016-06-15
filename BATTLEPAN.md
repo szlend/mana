@@ -48,3 +48,8 @@
     * user_id
     * pos_x
     * pos_y
+
+# 15.06.2016
+
+ * Generated models for Game, GamePlayer, GameMove
+ * Migrations
