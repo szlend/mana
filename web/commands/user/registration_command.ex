@@ -7,7 +7,7 @@ defmodule Mana.User.RegistrationCommand do
   end
 
   def run(registration_params \\ %{}) do
-    changeset = Registration.changeset(%Registration{}, registration_params)
+    changeset = prepare(registration_params)
     case Repo.insert(changeset) do
       {:ok, registration} -> {:ok, Registration.to_user(registration)}
       {:error, changeset} -> {:error, changeset}
