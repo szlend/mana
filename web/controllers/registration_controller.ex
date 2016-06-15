@@ -1,15 +1,14 @@
 defmodule Mana.RegistrationController do
   use Mana.Web, :controller
-  alias Mana.User
+  alias Mana.User.RegistrationCommand
 
   def new(conn, _params) do
-    changeset = User.Registration.changeset(%User{})
-    render conn, "new.html", %{changeset: changeset}
+    changeset = RegistrationCommand.prepare()
+    render(conn, "new.html", %{changeset: changeset})
   end
 
-  def create(conn, %{"user" => user}) do
-    changeset = User.Registration.changeset(%User{}, user)
-    case Repo.insert(changeset) do
+  def create(conn, %{"registration" => registration_params}) do
+    case RegistrationCommand.run(registration_params) do
       {:ok, user} ->
         conn
         |> Guardian.Plug.sign_in(user)

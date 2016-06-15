@@ -1,6 +1,14 @@
 defmodule Mana.User.Registration do
-  import Ecto.Changeset
+  use Mana.Web, :model
   import Mana.User
+
+  schema "users" do
+    field :username, :string
+    field :encrypted_password, :string
+    field :password, :string, virtual: true
+    field :password_confirmation, :string, virtual: true
+    timestamps
+  end
 
   def changeset(struct, params \\ %{}) do
     struct
@@ -9,5 +17,9 @@ defmodule Mana.User.Registration do
     |> validate_username
     |> validate_password
     |> hash_password
+  end
+
+  def to_user(struct) do
+    struct(Mana.User, Map.delete(struct, :__struct__))
   end
 end

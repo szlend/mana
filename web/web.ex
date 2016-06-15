@@ -72,6 +72,14 @@ defmodule Mana.Web do
     end
   end
 
+  def command do
+    quote do
+      alias Mana.Repo
+      import Ecto
+      import Ecto.Query, only: [from: 1, from: 2]
+    end
+  end
+
   @doc """
   When used, dispatch to the appropriate controller/view/etc.
   """

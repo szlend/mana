@@ -4,8 +4,6 @@ defmodule Mana.User do
   schema "users" do
     field :username, :string
     field :encrypted_password, :string
-    field :password, :string, virtual: true
-    field :password_confirmation, :string, virtual: true
     timestamps
   end
 
