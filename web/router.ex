@@ -22,6 +22,7 @@ defmodule Mana.Router do
 
     get "/", PageController, :index
     resources "/registrations", RegistrationController, only: [:new, :create]
+    resources "/profiles", ProfileController, only: [:edit, :update]
   end
 
   # Other scopes may use custom stacks.
