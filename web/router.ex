@@ -22,6 +22,8 @@ defmodule Mana.Router do
 
     get "/", PageController, :index
     resources "/registrations", RegistrationController, only: [:new, :create]
+    get "/auth/login", AuthController, :login
+    post "/auth/login", AuthController, :login
   end
 
   # Other scopes may use custom stacks.

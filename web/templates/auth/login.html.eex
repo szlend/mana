@@ -1,0 +1,13 @@
+<%= form_for @conn, auth_path(@conn, :login), [as: :login], fn f -> %>
+  <%= fieldset_tag f, :username, class: "form-group" do %>
+    <%= label f, :username %>
+    <%= text_input f, :username, class: "form-control" %>
+    <% end %>
+
+  <%= fieldset_tag f, :password, class: "form-group" do %>
+    <%= label f, :password %>
+    <%= password_input f, :password, class: "form-control" %>
+  <% end %>
+
+  <%= submit "Login" %> 
+<% end %>

@@ -21,7 +21,7 @@ defmodule Mana.User do
 
   def hash_password(changeset) do
     if password = get_change(changeset, :password) do
-      encrypted_password = Comeonin.Bcrypt.hashpwsalt(password)
+      encrypted_password = Mana.Auth.hash_password(password)
       put_change(changeset, :encrypted_password, encrypted_password)
     else
       changeset
