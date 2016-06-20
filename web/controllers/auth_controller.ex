@@ -6,6 +6,7 @@ defmodule Mana.AuthController do
       {:ok, user} ->
 	conn
 	|> Guardian.Plug.sign_in(user)
+	|> put_flash(:info, "Successfully signed in.")
 	|> redirect(to: "/")
 	
       {:error} ->
