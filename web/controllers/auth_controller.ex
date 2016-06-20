@@ -1,7 +1,7 @@
 defmodule Mana.AuthController do
   use Mana.Web, :controller
 
-  def login(conn, %{"login" => login} = params) do
+  def login(conn, %{"login" => login}) do
     case Mana.User.LoginCommand.run(login) do
       {:ok, user} ->
 	conn
@@ -10,6 +10,7 @@ defmodule Mana.AuthController do
 	
       {:error} ->
 	conn
+	|> put_flash(:error, "Wrong credentials.")
 	|> login(%{})
     end
   end
