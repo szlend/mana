@@ -50,6 +50,7 @@ defmodule Mana.Web do
       use Phoenix.HTML
 
       import Mana.Router.Helpers
+      import Mana.Auth.Helpers
       import Mana.ErrorHelpers
       import Mana.Gettext
     end
