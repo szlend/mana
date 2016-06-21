@@ -18,7 +18,7 @@ defmodule Mana.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {Mana, []},
-     applications: [:phoenix, :phoenix_html, :cowboy, :logger, :gettext,
+     applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
                     :phoenix_ecto, :postgrex, :comeonin]]
   end
 
@@ -32,13 +32,13 @@ defmodule Mana.Mixfile do
   defp deps do
     [{:phoenix, "~> 1.2.0-rc"},
      {:phoenix_pubsub, "~> 1.0.0-rc"},
-     {:phoenix_ecto, "~> 3.0-rc"},
+     {:phoenix_ecto, "~> 3.0"},
      {:phoenix_html, "~> 2.5"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:postgrex, ">= 0.0.0"},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:ecto, "~> 2.0.0-rc"},
+     {:ecto, "~> 2.0.0"},
      {:comeonin, "~> 2.4"},
      {:guardian, "~> 0.12.0"}]
   end

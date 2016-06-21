@@ -1,6 +1,3 @@
 ExUnit.start
 
-Mix.Task.run "ecto.create", ~w(-r Mana.Repo --quiet)
-Mix.Task.run "ecto.migrate", ~w(-r Mana.Repo --quiet)
-Ecto.Adapters.SQL.begin_test_transaction(Mana.Repo)
-
+Ecto.Adapters.SQL.Sandbox.mode(Mana.Repo, :manual)
