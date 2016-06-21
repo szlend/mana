@@ -40,7 +40,8 @@ defmodule Mana.Mixfile do
      {:cowboy, "~> 1.0"},
      {:ecto, "~> 2.0.0"},
      {:comeonin, "~> 2.4"},
-     {:guardian, "~> 0.12.0"}]
+     {:guardian, "~> 0.12.0"},
+     {:credo, "~> 0.4", only: [:dev, :test]}]
   end
 
   # Aliases are shortcut or tasks specific to the current project.

@@ -10,7 +10,7 @@ defmodule Mana.ErrorHelpers do
   """
   def error_tag(form, field) do
     if error = form.errors[field] do
-      content_tag :span, translate_error(error), class: "help-block"
+      content_tag(:span, translate_error(error), class: "help-block")
     end
   end
 
@@ -44,12 +44,11 @@ defmodule Mana.ErrorHelpers do
 
   def fieldset_tag(form, field, options, [do: block]) when is_list(options) do
     {error_class, options} = Keyword.pop(options, :error_class, "")
-    case error_tag(form, field) do
-      nil ->
-        content_tag(:fieldset, block, options)
-      error_tag ->
-        options = fieldset_options_with_error(options, error_class)
-        content_tag(:fieldset, [block, error_tag], options)
+    if tag = error_tag(form, field) do
+      options = fieldset_options_with_error(options, error_class)
+      content_tag(:fieldset, [block, tag], options)
+    else
+      content_tag(:fieldset, block, options)
     end
   end
 

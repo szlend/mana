@@ -5,7 +5,7 @@ defmodule Mana.Game do
     field :name, :string
     field :status, :string
     belongs_to :user, Mana.User
-    
+
     timestamps
   end
 
