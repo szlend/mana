@@ -1,20 +1,30 @@
 defmodule Mana.ProfileController do
   use Mana.Web, :controller
-  require IEx
+  alias Mana.User.Profile
 
-  def edit(conn, %{"id" => id}) do
-    {id, _} = Integer.parse(id)
+  plug :scrub_params, "profile" when action in [:update]
+
+  def edit(conn, _params) do
+    user = Guardian.Plug.current_resource(conn)
+    profile = Profile.from_user(user)
+    changeset = Profile.changeset(profile)
     conn
-    |> assign(:user, Repo.get(Mana.User, id))
-    |> render("edit.html")
+    |> render("edit.html", %{profile: profile, changeset: changeset})
   end
 
-  def update(conn, %{"id" => id, "user" => %{"username" => username}}) do
-    {id, _} = Integer.parse(id)
-    q = Repo.get(Mana.User, id)
-    q = %{q | username: username }
-    IEx.pry
-    Repo.update(q)
-    redirect conn, to: profile_path(conn, :edit, q.id)
+  def update(conn, %{"profile" => profile_params}) do
+    user = Guardian.Plug.current_resource(conn)
+    profile = Profile.from_user(user)
+    changeset = Profile.changeset(profile, profile_params)
+    case Repo.update(changeset) do
+      {:ok, _} ->
+        conn
+        |> put_flash(:info, "Updated profile successfully.")
+        |> redirect(to: "/")
+      {:error, changeset} ->
+        conn
+        |> put_flash(:error, "Error updating profile.")
+        |> render("edit.html", %{profile: profile, changeset: changeset})
+    end
   end
 end

@@ -14,7 +14,7 @@ defmodule Mana.User.Profile do
     |> validate_username
   end
 
-  def to_user(struct) do
-    struct(Mana.User, Map.delete(struct, :__struct__))
+  def from_user(struct) do
+    struct(Mana.User.Profile, Map.delete(struct, :__struct__))
   end
 end
