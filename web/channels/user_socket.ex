@@ -20,6 +20,6 @@ defmodule Mana.UserSocket do
   end
 
   def id(socket) do
-    Integer.to_string(socket.assigns.id)
+    "user:" <> Integer.to_string(socket.assigns.id)
   end
 end
