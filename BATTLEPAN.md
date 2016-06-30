@@ -53,3 +53,15 @@
 
  * Generated models for Game, GamePlayer, GameMove
  * Migrations
+
+ # 21.06.2016
+
+ * Code review for login/profile updating
+
+# 30.06.2016
+
+* Game channel
+* Game instance (GenServer)
+* Creating games
+* Game supervisor
+* Channel user authentication

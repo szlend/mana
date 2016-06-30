@@ -21,6 +21,12 @@
       </main>
 
     </div> <!-- /container -->
+
+    <%= if Guardian.Plug.current_token(@conn) do %>
+      <script type="text/javascript">
+        window.userToken = "<%= Guardian.Plug.current_token(@conn) %>";
+      </script>
+    <% end %>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>

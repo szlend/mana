@@ -1,0 +1,31 @@
+defmodule Mana.GameInstance do
+	use GenServer
+
+	# Client
+
+	def start_link(name) do
+    GenServer.start(__MODULE__, name, name: via_name(name))
+  end
+
+	def join(name, socket) do
+		GenServer.call(via_name(name), {:join, socket})
+	end
+
+	def via_name(name) do
+		{:via, :gproc, {:n, :l, {:game, name}}}
+	end
+
+	# Server
+
+	def init(name) do
+		{:ok, %{name: name, users: []}}
+	end
+
+	def handle_call(:name, _from, state) do
+		{:reply, state.name, state}
+	end
+
+	# def handle_call({:join, socket}, _from, state) do
+	# 	state = %{state | users: st }
+	# end
+end

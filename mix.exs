@@ -19,7 +19,7 @@ defmodule Mana.Mixfile do
   def application do
     [mod: {Mana, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :comeonin]]
+                    :phoenix_ecto, :postgrex, :comeonin, :gproc]]
   end
 
   # Specifies which paths to compile per environment.
@@ -41,6 +41,7 @@ defmodule Mana.Mixfile do
      {:ecto, "~> 2.0.0"},
      {:comeonin, "~> 2.4"},
      {:guardian, "~> 0.12.0"},
+     {:gproc, "0.3.1"},
      {:credo, "~> 0.4", only: [:dev, :test]}]
   end
 

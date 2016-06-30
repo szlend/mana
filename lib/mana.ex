@@ -7,12 +7,9 @@ defmodule Mana do
     import Supervisor.Spec, warn: false
 
     children = [
-      # Start the endpoint when the application starts
       supervisor(Mana.Endpoint, []),
-      # Start the Ecto repository
       supervisor(Mana.Repo, []),
-      # Here you could define other workers and supervisors as children
-      # worker(Mana.Worker, [arg1, arg2, arg3]),
+      supervisor(Mana.GameSupervisor, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

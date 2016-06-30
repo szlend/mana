@@ -26,6 +26,8 @@ defmodule Mana.Router do
 
     get "/auth/login", AuthController, :login
     post "/auth/login", AuthController, :login
+
+    get "/games", GameController, :index
   end
 
   # Other scopes may use custom stacks.
