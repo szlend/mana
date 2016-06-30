@@ -1,15 +1,15 @@
 import {Socket} from "phoenix"
 
-if (window.location.pathname.startsWith('/games')) {
-  let socket = new Socket("/socket", {params: {token: window.userToken}})
+const token = window.userToken
+const div = document.getElementById("game")
+
+if (div) {
+  const name = div.dataset.name
+  const socket = new Socket("/socket", {params: {token}})
   socket.connect()
 
-  let channel = socket.channel("game:lobby")
-  channel.join()
-    .receive("ok", resp => { console.log("Joined successfully", resp) })
-    .receive("error", resp => { console.log("Unable to join", resp) })
-
-  channel.push("create", {name: "my game"})
-    .receive("ok", (name) => console.log("created game: ", name))
-    .receive("error", (msg) => console.log(msg))
+  const game = socket.channel(`game:${name}`)
+  game.join()
+    .receive("ok", () => console.log(`Joined game ${name}`))
+    .receive("error", resp => console.log(`Failed to join game ${name}`, resp))
 }

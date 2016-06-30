@@ -21,13 +21,12 @@ defmodule Mana.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    resources "/registrations", RegistrationController, only: [:new, :create]
-    resources "/profile", ProfileController, only: [:edit, :update], singleton: true
-
     get "/auth/login", AuthController, :login
     post "/auth/login", AuthController, :login
 
-    get "/games", GameController, :index
+    resources "/registrations", RegistrationController, only: [:new, :create]
+    resources "/profile", ProfileController, only: [:edit, :update], singleton: true
+    resources "/games", GameController, only: [:index, :show, :new, :create]
   end
 
   # Other scopes may use custom stacks.

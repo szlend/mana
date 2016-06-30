@@ -12,21 +12,14 @@ defmodule Mana.UserSocket do
   def connect(%{"token" => token}, socket) do
     case sign_in(socket, token) do
       {:ok, socket, _} ->
-        {:ok, socket}
+        user = current_resource(socket)
+        {:ok, socket |> assign(:id, user.id)}
       _ ->
         :error
     end
   end
 
-  # Socket id's are topics that allow you to identify all sockets for a given user:
-  #
-  #     def id(socket), do: "users_socket:#{socket.assigns.user_id}"
-  #
-  # Would allow you to broadcast a "disconnect" event and terminate
-  # all active sockets and channels for a given user:
-  #
-  #     Mana.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
-  #
-  # Returning `nil` makes this socket anonymous.
-  def id(_socket), do: nil
+  def id(socket) do
+    Integer.to_string(socket.assigns.id)
+  end
 end

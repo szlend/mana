@@ -7,8 +7,8 @@ defmodule Mana.GameInstance do
     GenServer.start(__MODULE__, name, name: via_name(name))
   end
 
-	def join(name, socket) do
-		GenServer.call(via_name(name), {:join, socket})
+	def join(name, user_id) do
+		GenServer.call(via_name(name), {:join, user_id})
 	end
 
 	def via_name(name) do
@@ -18,14 +18,15 @@ defmodule Mana.GameInstance do
 	# Server
 
 	def init(name) do
-		{:ok, %{name: name, users: []}}
+		{:ok, %{name: name}}
 	end
 
 	def handle_call(:name, _from, state) do
 		{:reply, state.name, state}
 	end
 
-	# def handle_call({:join, socket}, _from, state) do
-	# 	state = %{state | users: st }
-	# end
+	def handle_call({:join, user_id}, _from, state) do
+		IO.puts "User #{user_id} joined game #{state.name}."
+		{:reply, :ok, state}
+	end
 end
