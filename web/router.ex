@@ -23,6 +23,7 @@ defmodule Mana.Router do
     get "/", PageController, :index
     get "/auth/login", AuthController, :login
     post "/auth/login", AuthController, :login
+    get "/auth/logout", AuthController, :logout
 
     resources "/registrations", RegistrationController, only: [:new, :create]
     resources "/profile", ProfileController, only: [:edit, :update], singleton: true

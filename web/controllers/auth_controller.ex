@@ -18,4 +18,10 @@ defmodule Mana.AuthController do
   def login(conn, _params) do
     render(conn, "login.html")
   end
+
+  def logout(conn, _params) do
+    Guardian.Plug.sign_out(conn)
+    |> put_flash(:info, "Logged out successfully.")
+    |> redirect(to: "/")
+  end
 end

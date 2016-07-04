@@ -1,3 +1,5 @@
+<h3>Log in</h3>
+
 <%= form_for @conn, auth_path(@conn, :login), [as: :login], fn f -> %>
   <%= fieldset_tag f, :username, class: "form-group" do %>
     <%= label f, :username %>
@@ -9,5 +11,5 @@
     <%= password_input f, :password, class: "form-control" %>
   <% end %>
 
-  <%= submit "Login" %> 
+  <%= submit "Login", class: "btn btn-primary" %>
 <% end %>
