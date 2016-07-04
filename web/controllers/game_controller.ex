@@ -1,9 +1,11 @@
 defmodule Mana.GameController do
   use Mana.Web, :controller
+  import Mana.Router.Helpers
   alias Mana.GameInstance
+  alias Mana.Game
 
   def index(conn, _params) do
-    render conn, "index.html"
+    render conn, "index.html", games: Repo.all(Game)
   end
 
   def show(conn, %{"id" => name}) do
@@ -19,6 +21,7 @@ defmodule Mana.GameController do
   end
 
   def new(conn, _params) do
+    render conn, "new.html"
   end
 
   def create(conn, _params) do

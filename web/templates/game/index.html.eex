@@ -1,1 +1,11 @@
-THis should be a game?
+<h3>Games</h3>
+
+<ul>
+  <%= for game <- @games do %>
+    <li>
+      <a href="<%= game_path(@conn, :show, game.name) %>">
+        <%= game.name %>
+      </a>
+    </li>
+  <% end %>
+</ul>
