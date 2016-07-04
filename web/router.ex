@@ -11,6 +11,14 @@ defmodule Mana.Router do
     plug Guardian.Plug.LoadResource
   end
 
+  pipeline :authenticated do
+    plug Guardian.Plug.EnsureAuthenticated, handler: Mana.AuthErrorHandler
+  end
+
+  pipeline :not_authenticated do
+    plug Guardian.Plug.EnsureNotAuthenticated, handler: Mana.AuthErrorHandler
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
     plug Guardian.Plug.VerifyHeader
@@ -18,20 +26,26 @@ defmodule Mana.Router do
   end
 
   scope "/", Mana do
-    pipe_through :browser # Use the default browser stack
+    pipe_through :browser
 
     get "/", PageController, :index
-    get "/auth/login", AuthController, :login
-    post "/auth/login", AuthController, :login
-    get "/auth/logout", AuthController, :logout
+  end
 
-    resources "/registrations", RegistrationController, only: [:new, :create]
+  scope "/", Mana do
+    pipe_through [:browser, :authenticated]
+
+    get "/sign_out", SessionController, :delete
+
     resources "/profile", ProfileController, only: [:edit, :update], singleton: true
     resources "/games", GameController, only: [:index, :show, :new, :create]
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", Mana do
-  #   pipe_through :api
-  # end
+  scope "/", Mana do
+    pipe_through [:browser, :not_authenticated]
+
+    get "/sign_up", RegistrationController, :new
+    post "/sign_up", RegistrationController, :create
+    get "/sign_in", SessionController, :new
+    post "/sign_in", SessionController, :create
+  end
 end

@@ -2,10 +2,10 @@
   <div class="menu">
   | <a href="<%= game_path(@conn, :new) %>">New Game</a>
   | <a href="<%= game_path(@conn, :index) %>">List games</a>
-  | <a href="<%= auth_path(@conn, :login) %>">Log in</a>
+  | <a href="<%= session_path(@conn, :new) %>">Log in</a>
   | <a href="<%= registration_path(@conn, :new) %>">Register</a>
   | <a href="#">Edit profile</a>
-  | <a href="<%= auth_path(@conn, :logout) %>">Log out</a> |
+  | <a href="<%= session_path(@conn, :delete) %>">Log out</a> |
   </div>
   <hr>
   <h2>Mana</h2>

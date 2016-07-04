@@ -1,6 +1,6 @@
 <h3>Log in</h3>
 
-<%= form_for @conn, auth_path(@conn, :login), [as: :login], fn f -> %>
+<%= form_for @conn, session_path(@conn, :create), [as: :login], fn f -> %>
   <%= fieldset_tag f, :username, class: "form-group" do %>
     <%= label f, :username %>
     <%= text_input f, :username, class: "form-control" %>

@@ -1,8 +1,13 @@
-defmodule Mana.AuthController do
+defmodule Mana.SessionController do
   use Mana.Web, :controller
+  alias Mana.User.LoginCommand
 
-  def login(conn, %{"login" => login}) do
-    case Mana.User.LoginCommand.run(login) do
+  def new(conn, _params) do
+    render(conn, "new.html")
+  end
+
+  def create(conn, %{"login" => login}) do
+    case LoginCommand.run(login) do
       {:ok, user} ->
         conn
         |> Guardian.Plug.sign_in(user)
@@ -11,16 +16,13 @@ defmodule Mana.AuthController do
       {:error} ->
         conn
         |> put_flash(:error, "Wrong credentials.")
-        |> login(%{})
+        |> render("new.html")
     end
   end
 
-  def login(conn, _params) do
-    render(conn, "login.html")
-  end
-
-  def logout(conn, _params) do
-    Guardian.Plug.sign_out(conn)
+  def delete(conn, _params) do
+    conn
+    |> Guardian.Plug.sign_out
     |> put_flash(:info, "Logged out successfully.")
     |> redirect(to: "/")
   end
