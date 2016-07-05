@@ -8,7 +8,9 @@ defmodule Mana.GameChannel do
         {:error, %{reason: "not_found"}}
       _ ->
         :ok = GameInstance.join(name, socket.assigns.id)
-        {:ok, socket}
+        users_ids = GameInstance.get_users(name)
+        current_users = Repo.all(from u in Mana.User, select: u.username, where: u.id in ^users_ids)
+        {:ok, current_users, socket}
     end
   end
 

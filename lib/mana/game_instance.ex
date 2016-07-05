@@ -11,6 +11,10 @@ defmodule Mana.GameInstance do
     GenServer.call(via_name(name), {:join, user_id})
   end
 
+  def get_users(name) do
+    GenServer.call(via_name(name), :users)
+  end
+
   def via_name(name) do
     {:via, :gproc, {:n, :l, {:game, name}}}
   end
@@ -23,15 +27,24 @@ defmodule Mana.GameInstance do
 
   def init(name) do
     :gproc.reg({:p, :l, :game}, name)
-    {:ok, %{name: name}}
+    {:ok, %{name: name, status: :waiting, users: MapSet.new()}}
   end
 
   def handle_call(:name, _from, state) do
     {:reply, state.name, state}
   end
 
+  def handle_call(:users, _from, state) do
+    {:reply, MapSet.to_list(state.users), state}
+  end
+
+
   def handle_call({:join, user_id}, _from, state) do
     IO.puts "User #{user_id} joined game #{state.name}."
-    {:reply, :ok, state}
+    {:reply, :ok, add_user(state, user_id)}
+  end
+
+  defp add_user(%{status: :waiting, users: users} = state, user_id) do
+    %{ state | users: MapSet.put(users, user_id) }
   end
 end

@@ -11,7 +11,7 @@ defmodule Mana.GameController do
   def index(conn, _params) do
     games =
       GameInstance.list()
-      |> Enum.map (fn {pid, name} -> name end)
+      |> Enum.map(fn {_, name} -> name end)
 
     render conn, "index.html", games: games
   end
@@ -23,8 +23,9 @@ defmodule Mana.GameController do
         |> put_flash(:error, "The specified game does not exist.")
         |> redirect(to: game_path(conn, :index))
       game ->
-        name = GenServer.call(game, :name)
-        render(conn, "show.html", %{name: name})
+        users_ids = GameInstance.get_users(name)
+        users = Repo.all(from u in Mana.User, where: u.id in ^users_ids)
+        render(conn, "show.html", name: name, users: users)
     end
   end
 

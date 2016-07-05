@@ -10,6 +10,7 @@ if (div) {
 
   const game = socket.channel(`game:${name}`)
   game.join()
-    .receive("ok", () => console.log(`Joined game ${name}`))
+    // Continue here. Use jQuery approach!!!11enajst
+    .receive("ok", (users) => console.log(`Joined game ${name}`, users))
     .receive("error", resp => console.log(`Failed to join game ${name}`, resp))
 }
