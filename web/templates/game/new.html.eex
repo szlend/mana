@@ -1,1 +1,10 @@
 <h3>Create new game</h3>
+
+<%= form_for @conn, game_path(@conn, :create), [as: :game], fn f -> %>
+  <%= fieldset_tag f, :name, class: "form-group" do %>
+    <%= label f, :name %>
+    <%= text_input f, :name, class: "form-control" %>
+  <% end %>
+
+  <%= submit "Create", class: "btn btn-primary" %>
+<% end %>

@@ -14,10 +14,15 @@ defmodule Mana.GameInstance do
   def via_name(name) do
     {:via, :gproc, {:n, :l, {:game, name}}}
   end
+
+  def list() do
+    :gproc.lookup_values({:p, :l, :game})
+  end
   
   # Server
 
   def init(name) do
+    :gproc.reg({:p, :l, :game}, name)
     {:ok, %{name: name}}
   end
 

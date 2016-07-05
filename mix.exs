@@ -35,7 +35,7 @@ defmodule Mana.Mixfile do
      {:phoenix_ecto, "~> 3.0"},
      {:phoenix_html, "~> 2.6"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
-     {:postgrex, ">= 0.0.0"},
+     {:postgrex, "~> 0.11.2"},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:ecto, "~> 2.0.0"},

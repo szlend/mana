@@ -4,8 +4,16 @@ defmodule Mana.GameController do
   alias Mana.GameInstance
   alias Mana.Game
 
+#  def index(conn, _params) do
+#    render conn, "index.html", games: Repo.all(Game)
+#  end
+
   def index(conn, _params) do
-    render conn, "index.html", games: Repo.all(Game)
+    games =
+      GameInstance.list()
+      |> Enum.map (fn {pid, name} -> name end)
+
+    render conn, "index.html", games: games
   end
 
   def show(conn, %{"id" => name}) do
@@ -21,9 +29,17 @@ defmodule Mana.GameController do
   end
 
   def new(conn, _params) do
+
     render conn, "new.html"
   end
 
-  def create(_conn, _params) do
+  def create(conn, %{"game" => %{"name" => name}}) do
+    case Game.CreateCommand.run(name) do
+      :ok -> redirect(conn, to: game_path(conn, :show, name))
+      :error ->
+        conn
+        |> put_flash(:error, "Game with this name already exists.")
+        |> render("new.html")
+    end
   end
 end
