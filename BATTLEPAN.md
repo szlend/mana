@@ -65,3 +65,10 @@
 * Creating games
 * Game supervisor
 * Channel user authentication
+
+# 05.07.2016
+
+* Create game form + command
+* Storing joined users in GameInstance state
+* Listing joined users (controller + channel)
+* Listing created games
