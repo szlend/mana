@@ -1,7 +1,6 @@
 machine:
   environment:
     PATH: "$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH"
-    MIX_ENV: test
   node:
     version: 6.3.0
 
@@ -17,4 +16,15 @@ dependencies:
 
 test:
   override:
+    - export MIX_ENV=test
     - mix test
+
+deployment:
+  staging:
+    branch: circleci
+    commands:
+      - export MIX_ENV=prod
+      - mix deps.get
+      - mix phoenix.digest
+      - mix compile
+      - mix release
