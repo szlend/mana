@@ -20,7 +20,6 @@ dependencies:
 
 test:
   override:
-    - MIX_ENV=test mix deps.get
     - MIX_ENV=test mix test || true
 
 deployment:
@@ -28,7 +27,6 @@ deployment:
     branch: circleci
     commands:
       - mkdir priv/static || true
-      - MIX_ENV=prod mix deps.get
       - MIX_ENV=prod mix compile
       - MIX_ENV=prod mix phoenix.digest
       - MIX_ENV=prod mix release --no-confirm-missing
