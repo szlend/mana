@@ -2,6 +2,8 @@ machine:
   environment:
     PATH: "$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH"
     MIX_ENV: test
+  node:
+    version: 6.3.0
 
 dependencies:
   pre:
