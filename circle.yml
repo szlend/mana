@@ -13,6 +13,7 @@ dependencies:
     - ~/.mix
     - _build
     - deps
+    - node_modules
 
 test:
   override:
