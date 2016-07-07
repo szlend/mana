@@ -1,12 +1,16 @@
 machine:
   environment:
     PATH: "$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH"
-  node:
-    version: 6.3.0
+    MIX_ENV: test
 
 dependencies:
   pre:
-    - script/ci/prepare.sh
+    - if ! asdf | grep version; then git clone https://github.com/HashNuke/asdf.git ~/.asdf; fi
+    - if ! asdf plugin-list | grep erlang; then asdf plugin-add erlang https://github.com/HashNuke/asdf-erlang.git; fi
+    - if ! asdf plugin-list | grep elixir; then asdf plugin-add elixir https://github.com/HashNuke/asdf-elixir.git; fi
+    - asdf install
+    - yes | mix deps.get
+    - yes | mix local.rebar
   cache_directories:
     - ~/.asdf
     - ~/.mix
@@ -16,7 +20,6 @@ dependencies:
 
 test:
   override:
-    - export MIX_ENV=test
     - mix test || true
 
 deployment:
@@ -25,6 +28,6 @@ deployment:
     commands:
       - export MIX_ENV=prod
       - mix deps.get
-      - mix phoenix.digest
       - mix compile
-      - mix release
+      - mix phoenix.digest
+      - mix release --no-confirm-missing
