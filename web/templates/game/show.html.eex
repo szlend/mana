@@ -1,11 +1,14 @@
 <h1>Game name: <%= @name %></h1>
-<div id="game" data-name="<%= @name %>"></div>
 
-Users:
-<ul>
-  <%= for user <- @users do %>
-  <li>
-    <span><%= user.username %></span>
-  </li>
-  <% end %>
-</ul>
+<canvas id="game" width="240" height="240" data-name="<%= @name %>"></canvas>
+
+<div>
+  Users:
+  <ul>
+    <%= for user <- @users do %>
+    <li>
+      <span><%= user.username %></span>
+    </li>
+    <% end %>
+  </ul>
+</div>
