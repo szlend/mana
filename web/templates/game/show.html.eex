@@ -6,13 +6,13 @@
 <hr>
 
 <div class="row">
-  <div class="col-sm-6">
+  <div class="col-xs-6">
     Moves
     <ul id="game-moves">
     </ul>
   </div>
 
-  <div class="col-sm-6">
+  <div class="col-xs-6">
     Users:
     <ul>
       <%= for user <- @users do %>

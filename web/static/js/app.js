@@ -32,15 +32,17 @@ if (div) {
 
   const channel = socket.channel(`game:${name}`)
   channel.join()
-    .receive("error", resp => console.log(`Failed to join game "${name}"`, resp))
-    .receive("ok", (users) => {
-      console.log(`Joined game "${name}"`, users)
-      channel.push("mines", {x: [-20, 20], y: [-20, 20]})
-        .receive("ok", onMinesReceived)
-    })
+    .receive("error", resp => console.log(`Failed to join game "${name}", response:`, resp))
+    .receive("ok", onGameJoin)
 
-  function onMinesReceived(data) {
-    console.log("Received mines: ", data.mines)
+  function onGameJoin(data) {
+    console.log(`Joined game "${name}", with users:`, data.users)
+    channel.push("mines", {x: [-20, 20], y: [-20, 20]})
+      .receive("ok", onReceiveMines)
+  }
+
+  function onReceiveMines(data) {
+    console.log("Received mines:", data.mines)
     game.mines = data.mines
   }
 }
