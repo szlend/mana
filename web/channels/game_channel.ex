@@ -10,12 +10,13 @@ defmodule Mana.GameChannel do
         :ok = GameInstance.join(name, socket.assigns.id)
         users_ids = GameInstance.get_users(name)
         current_users = Repo.all(from u in Mana.User, select: u.username, where: u.id in ^users_ids)
+        socket = assign(socket, :game, name)
         {:ok, %{users: current_users}, socket}
     end
   end
 
   def handle_in("mines", %{"x" => [from_x, to_x], "y" => [from_y, to_y]}, socket) do
-    seed = "this is not a seed"
+    seed = "this is a seed for #{socket.assigns.game}"
     mines = for x <- (from_x .. to_x), y <- (from_y .. to_y), bomb?(seed, x, y), do: [x, y]
     {:reply, {:ok, %{mines: mines}}, socket}
   end
