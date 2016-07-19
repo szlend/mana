@@ -16,10 +16,10 @@ if (div) {
   }
 
   game.onTileClick = function(tileX, tileY) {
-    const moves = document.getElementById("game-moves")
+    const ul = document.getElementById("game-moves")
     let li = document.createElement("li")
     li.innerText = `Clicked on tile (${tileX}, ${tileY})`
-    moves.insertBefore(li, moves.firstChild);
+    ul.insertBefore(li, ul.firstChild)
   }
 
   game.run()
@@ -37,6 +37,15 @@ if (div) {
 
   function onGameJoin(data) {
     console.log(`Joined game "${name}", with users:`, data.users)
+
+    const ul = document.getElementById("game-users")
+    for (const user of data.users) {
+      let li = document.createElement("li")
+      li.innerText = user
+      ul.insertBefore(li, ul.firstChild)
+      console.log(ul)
+    }
+
     channel.push("mines", {x: [-20, 20], y: [-20, 20]})
       .receive("ok", onReceiveMines)
   }

@@ -23,9 +23,7 @@ defmodule Mana.GameController do
         |> put_flash(:error, "The specified game does not exist.")
         |> redirect(to: game_path(conn, :index))
       game ->
-        users_ids = GameInstance.get_users(name)
-        users = Repo.all(from u in Mana.User, where: u.id in ^users_ids)
-        render(conn, "show.html", name: name, users: users)
+        render(conn, "show.html", name: name)
     end
   end
 

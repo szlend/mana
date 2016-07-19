@@ -8,18 +8,11 @@
 <div class="row">
   <div class="col-xs-6">
     Moves:
-    <ul id="game-moves">
-    </ul>
+    <ul id="game-moves"></ul>
   </div>
 
   <div class="col-xs-6">
     Users:
-    <ul>
-      <%= for user <- @users do %>
-      <li>
-        <span><%= user.username %></span>
-      </li>
-      <% end %>
-    </ul>
+    <ul id="game-users"></ul>
   </div>
 </div>
