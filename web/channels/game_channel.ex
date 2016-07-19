@@ -14,6 +14,17 @@ defmodule Mana.GameChannel do
     end
   end
 
+  def handle_in("mines", %{"x" => [from_x, to_x], "y" => [from_y, to_y]}, socket) do
+    seed = "this is not a seed"
+    mines = for x <- (from_x .. to_x), y <- (from_y .. to_y), bomb?(seed, x, y), do: [x, y]
+    {:reply, {:ok, %{mines: mines}}, socket}
+  end
+
+  # move this shit out of here please
+  defp bomb?(seed, x, y) do
+    rem(:erlang.phash2({seed, x, y}), 1000) > 800
+  end
+
   # def handle_in("create", %{"name" => name}, socket) do
   #   case Mana.GameSupervisor.create_game(name) do
   #     {:ok, game} ->
