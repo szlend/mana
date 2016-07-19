@@ -1,6 +1,8 @@
-<h1>Game name: <%= @name %></h1>
+<h1 class="text-center">Game name: <%= @name %></h1>
+<canvas id="game" width="303" height="303" data-name="<%= @name %>"></canvas>
 
-<canvas id="game" width="240" height="240" data-name="<%= @name %>"></canvas>
+<div id="game-x"></div>
+<div id="game-y"></div>
 
 <div>
   Users:

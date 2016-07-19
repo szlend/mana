@@ -1,72 +1,97 @@
 let canvas = document.getElementById('game')
 let context = canvas.getContext('2d')
 
-const RIGHT_KEY_CODE = 39
-const LEFT_KEY_CODE = 37
-const UP_KEY_CODE = 38
-const DOWN_KEY_CODE = 40
-
-let keysPressed = {}
+let isScrolling = false
+let isClick = true
 
 const tileSize = 24
 const sizeX = canvas.width / tileSize
 const sizeY = canvas.height / tileSize
 
-let mapX = 0
-let mapY = 0
+let cameraX = 0
+let cameraY = 0
 
 let touchX = null
 let touchY = null
 
-document.addEventListener('keydown', keyDown, false)
-document.addEventListener('keyup', keyUp, false)
-canvas.addEventListener("touchmove", handleMove, false)
+document.addEventListener('mousedown', mouseDown, false)
+document.addEventListener('mouseup', mouseUp, false)
+
+canvas.addEventListener('click', canvasClick, false)
+canvas.addEventListener('mousemove', mouseMove, false)
+canvas.addEventListener("touchmove", touchMove, false)
 
 render()
-setInterval(update, 1000 / 120)
-
-function update() {
-  if (keysPressed[RIGHT_KEY_CODE]) mapX = mapX + 2
-  if (keysPressed[LEFT_KEY_CODE]) mapX = mapX - 2
-  if (keysPressed[UP_KEY_CODE]) mapY = mapY - 2
-  if (keysPressed[DOWN_KEY_CODE]) mapY = mapY + 2
-}
 
 function render() {
-  // console.log(mapX, mapY)
+  // const width = canvas.parentElement.getBoundingClientRect().width
+  // const height = window.innerHeight - canvas.offsetTop
+  // const size = Math.min(width, height)
+  // console.log(width, height, size)
+  //
+  // canvas.width = size
+  // canvas.height = size
+
   context.clearRect(0, 0, canvas.width, canvas.height)
 
-  const offsetX = -tileSize + (mapX % tileSize)
-  const offsetY = -tileSize + (mapY % tileSize)
+  const renderOffsetX = -tileSize + (cameraX % tileSize)
+  const renderOffsetY = -tileSize + (cameraY % tileSize)
 
   context.beginPath()
+  context.strokeStyle = '#666';
   for (let y = 0; y < canvas.height; y++) {
     for (let x = 0; x < canvas.width; x++) {
-      context.rect(offsetX + (x * tileSize), offsetY + (y * tileSize), tileSize, tileSize)
+      context.rect(renderOffsetX + (x * tileSize), renderOffsetY + (y * tileSize), tileSize, tileSize)
     }
   }
   context.stroke()
 
+  document.getElementById('game-x').innerText = `X: ${-cameraX}`
+  document.getElementById('game-y').innerText = `Y: ${cameraY}`
+
   requestAnimationFrame(render)
 }
 
-function keyDown(e) {
-  keysPressed[e.keyCode] = true
+function updateGrid(x, y) {
+  cameraX += x - touchX
+  cameraY += y - touchY
+  touchX = x
+  touchY = y
 }
 
-function keyUp(e) {
-  keysPressed[e.keyCode] = false
+function touchMove(e) {
+  const x = Math.round(e.touches[0].clientX)
+  const y = Math.round(e.touches[0].clientY)
+  updateGrid(x, y)
 }
 
-function handleMove(e) {
-  const prevTouchX = touchX
-  const prevTouchY = touchY
-  touchX = e.touches[0].clientX
-  touchY = e.touches[0].clientY
-  if (prevTouchX !== null) {
-    mapX += touchX - prevTouchX
-    mapY += touchY - prevTouchY
+function mouseDown(e) {
+  isScrolling = true
+  touchX = e.clientX
+  touchY = e.clientY
+}
+function mouseUp() {
+  isScrolling = false
+}
+
+function mouseMove(e) {
+  if (isScrolling) {
+    updateGrid(e.clientX, e.clientY)
+    isClick = false
   }
+}
+
+function canvasClick(e) {
+  if (isClick) {
+    console.log(tileCoordinates(e.offsetX, e.offsetY))
+  }
+  isClick = true
+}
+
+function tileCoordinates(mouseX, mouseY) {
+  const x = Math.floor((-cameraX + mouseX) / tileSize)
+  const y = Math.floor((cameraY - mouseY) / tileSize)
+  return [x, y]
 }
 
 
