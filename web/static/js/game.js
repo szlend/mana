@@ -62,23 +62,23 @@ export default class Game {
     const renderOffsetX = -tileSize + (cameraX % tileSize)
     const renderOffsetY = -tileSize + (cameraY % tileSize)
 
+    // Render mines
+    for (const [mineTileX, mineTileY] of mines) {
+      const mineScreenX = cameraX + mineTileX * tileSize
+      const mineScreenY = cameraY + mineTileY * tileSize
+      context.fillRect(mineScreenX, mineScreenY, tileSize, tileSize)
+    }
+
+    // Render grid
     context.beginPath()
     context.strokeStyle = '#666';
 
-    // Render grid
     for (let y = 0; y < canvas.height; y++) {
       for (let x = 0; x < canvas.width; x++) {
         const rectScreenX = renderOffsetX + (x * tileSize)
         const rectScreenY = renderOffsetY + (y * tileSize)
         context.rect(rectScreenX, rectScreenY, tileSize, tileSize)
       }
-    }
-
-    // Render mines
-    for (let [mineTileX, mineTileY] of mines) {
-      const mineScreenX = cameraX + mineTileX * tileSize
-      const mineScreenY = cameraY + mineTileY * tileSize
-      context.fillRect(mineScreenX, mineScreenY, tileSize, tileSize)
     }
 
     context.stroke()
