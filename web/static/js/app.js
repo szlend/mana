@@ -7,16 +7,19 @@ const div = document.getElementById("game")
 
 if (div) {
   // Game stuff
-  const canvas = document.getElementById('game')
+  const canvas = document.getElementById("game")
   const game = new Game(canvas)
 
   game.onCameraMove = function(cameraX, cameraY) {
-    document.getElementById('game-x').innerText = `X: ${cameraX}`
-    document.getElementById('game-y').innerText = `Y: ${cameraY}`
+    document.getElementById("game-x").innerText = `X: ${cameraX}`
+    document.getElementById("game-y").innerText = `Y: ${cameraY}`
   }
 
   game.onTileClick = function(tileX, tileY) {
-    console.log(`Clicked on tile (${tileX}, ${tileY})`)
+    const moves = document.getElementById("game-moves")
+    let li = document.createElement("li")
+    li.innerText = `Clicked on tile (${tileX}, ${tileY})`
+    moves.insertBefore(li, moves.firstChild);
   }
 
   game.run()

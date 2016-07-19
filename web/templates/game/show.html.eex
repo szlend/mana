@@ -1,16 +1,25 @@
 <h1 class="text-center">Game name: <%= @name %></h1>
 <canvas id="game" width="303" height="303" data-name="<%= @name %>"></canvas>
 
-<div id="game-x"></div>
-<div id="game-y"></div>
+<span id="game-x"></span>, <span id="game-y"></span>
 
-<div>
-  Users:
-  <ul>
-    <%= for user <- @users do %>
-    <li>
-      <span><%= user.username %></span>
-    </li>
-    <% end %>
-  </ul>
+<hr>
+
+<div class="row">
+  <div class="col-sm-6">
+    Moves
+    <ul id="game-moves">
+    </ul>
+  </div>
+
+  <div class="col-sm-6">
+    Users:
+    <ul>
+      <%= for user <- @users do %>
+      <li>
+        <span><%= user.username %></span>
+      </li>
+      <% end %>
+    </ul>
+  </div>
 </div>
