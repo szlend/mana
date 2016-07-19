@@ -97,14 +97,9 @@ export default class Game {
     return [x, y]
   }
 
-  getCameraMoveDiff(touchX, touchY) {
-    return [touchX - this.touchX, touchY - this.touchY]
-  }
-
   moveCamera(touchX, touchY) {
-    const [diffX, diffY] = this.getCameraMoveDiff(touchX, touchY)
-    this.cameraX += diffX
-    this.cameraY += diffY
+    this.cameraX += touchX - this.touchX
+    this.cameraY += touchY - this.touchY
     this.touchX = touchX
     this.touchY = touchY
 
