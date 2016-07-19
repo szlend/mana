@@ -1,137 +1,145 @@
-import {Socket} from "phoenix"
+export default class Game {
+  constructor(canvas) {
+    // HTML canvas element and context
+    this.canvas = canvas
+    this.context = canvas.getContext("2d")
 
-const token = window.userToken
-const div = document.getElementById("game")
+    // Tile size in pixels
+    this.tileSize = 24
 
-if (div) {
-  let canvas = document.getElementById('game')
-  let context = canvas.getContext('2d')
+    // Camera pixel position on the map
+    this.cameraX = 0
+    this.cameraY = 0
 
-  let isScrolling = false
-  let isClick = true
+    // Input state
+    this.isScrolling = false  // determine if mouse movement should move the camera
+    this.isClick = true       // determine if it's a click or a drag
 
-  const tileSize = 24
-  const sizeX = canvas.width / tileSize
-  const sizeY = canvas.height / tileSize
+    // Last touch pixel position on canvas
+    this.touchX = 0
+    this.touchY = 0
 
-  let cameraX = 0
-  let cameraY = 0
+    // Global list of mines (localize later)
+    this.mines = []
 
-  let touchX = null
-  let touchY = null
+    // Game running state
+    this.running = false
 
-  let mines = []
+    // Callbacks
+    this.onCameraMove = null
+    this.onTileClick = null
+  }
 
-  document.addEventListener('mousedown', mouseDown, false)
-  document.addEventListener('mouseup', mouseUp, false)
+  run() {
+    if (this.running) throw "Game is already running."
+    this.running = true
 
-  canvas.addEventListener('click', canvasClick, false)
-  canvas.addEventListener('mousemove', mouseMove, false)
-  canvas.addEventListener("touchmove", touchMove, false)
+    // Register global events
+    document.addEventListener("mousedown", this.handleMouseDown.bind(this), false)
+    document.addEventListener("mouseup", this.handleMouseUp.bind(this), false)
 
-  render()
+    // Register canvas events
+    this.canvas.addEventListener("mousemove", this.handleMouseMove.bind(this), false)
+    this.canvas.addEventListener("touchmove", this.handleTouchMove.bind(this), false)
+    this.canvas.addEventListener("click", this.handleClick.bind(this), false)
 
-  function render() {
-    // const width = canvas.parentElement.getBoundingClientRect().width
-    // const height = window.innerHeight - canvas.offsetTop
-    // const size = Math.min(width, height)
-    // console.log(width, height, size)
-    //
-    // canvas.width = size
-    // canvas.height = size
+    // Start rendering
+    this.render()
+  }
 
+  render() {
+    const canvas = this.canvas
+    const context = this.context
+    const tileSize = this.tileSize
+    const cameraX = this.cameraX
+    const cameraY = this.cameraY
+    const mines = this.mines
+
+    // Clear screen
     context.clearRect(0, 0, canvas.width, canvas.height)
 
+    // Get the offset of a part of the tile to start rendering with
     const renderOffsetX = -tileSize + (cameraX % tileSize)
     const renderOffsetY = -tileSize + (cameraY % tileSize)
 
     context.beginPath()
     context.strokeStyle = '#666';
+
+    // Render grid
     for (let y = 0; y < canvas.height; y++) {
       for (let x = 0; x < canvas.width; x++) {
-        context.rect(renderOffsetX + (x * tileSize), renderOffsetY + (y * tileSize), tileSize, tileSize)
+        const rectScreenX = renderOffsetX + (x * tileSize)
+        const rectScreenY = renderOffsetY + (y * tileSize)
+        context.rect(rectScreenX, rectScreenY, tileSize, tileSize)
       }
     }
 
-    for (let [mineX, mineY] of mines) {
-      const x = cameraX + mineX * tileSize
-      const y = cameraY + mineY * tileSize
-
-      context.fillRect(x, y, tileSize, tileSize)
-      // console.log(x, y)
+    // Render mines
+    for (let [mineTileX, mineTileY] of mines) {
+      const mineScreenX = cameraX + mineTileX * tileSize
+      const mineScreenY = cameraY + mineTileY * tileSize
+      context.fillRect(mineScreenX, mineScreenY, tileSize, tileSize)
     }
 
     context.stroke()
 
-    document.getElementById('game-x').innerText = `X: ${-cameraX}`
-    document.getElementById('game-y').innerText = `Y: ${cameraY}`
-
-    requestAnimationFrame(render)
+    requestAnimationFrame(this.render.bind(this))
   }
 
-  function updateGrid(x, y) {
-    cameraX += x - touchX
-    cameraY += y - touchY
-    touchX = x
-    touchY = y
+  getCameraPosition() {
+    return [-this.cameraX, this.cameraY]
   }
 
-  function touchMove(e) {
-    const x = Math.round(e.touches[0].clientX)
-    const y = Math.round(e.touches[0].clientY)
-    updateGrid(x, y)
-  }
-
-  function mouseDown(e) {
-    isScrolling = true
-    touchX = e.clientX
-    touchY = e.clientY
-  }
-  function mouseUp() {
-    isScrolling = false
-  }
-
-  function mouseMove(e) {
-    if (isScrolling) {
-      updateGrid(e.clientX, e.clientY)
-      isClick = false
-    }
-  }
-
-  function canvasClick(e) {
-    if (isClick) {
-      console.log(tileCoordinates(e.offsetX, e.offsetY))
-    }
-    isClick = true
-  }
-
-  function tileCoordinates(mouseX, mouseY) {
-    const x = Math.floor((-cameraX + mouseX) / tileSize)
-    const y = Math.floor((cameraY - mouseY) / tileSize)
+  getTilePosition(pixelX, pixelY) {
+    const [cameraX, cameraY] = this.getCameraPosition()
+    const x = Math.floor((cameraX + pixelX) / this.tileSize)
+    const y = Math.floor((cameraY - pixelY) / this.tileSize)
     return [x, y]
   }
 
-  // Here comes dat channel stuff
+  getCameraMoveDiff(touchX, touchY) {
+    return [touchX - this.touchX, touchY - this.touchY]
+  }
 
-  const name = div.dataset.name
-  const socket = new Socket("/socket", {params: {token}})
-  socket.connect()
+  moveCamera(touchX, touchY) {
+    const [diffX, diffY] = this.getCameraMoveDiff(touchX, touchY)
+    this.cameraX += diffX
+    this.cameraY += diffY
+    this.touchX = touchX
+    this.touchY = touchY
 
-  const game = socket.channel(`game:${name}`)
-  game.join()
-    // Continue here. Use jQuery approach!!!11enajst
-    .receive("error", resp => console.log(`Failed to join game "${name}"`, resp))
-    .receive("ok", (users) => {
-      console.log(`Joined game "${name}"`, users)
+    if (this.onCameraMove) this.onCameraMove(this.cameraX, this.cameraY)
+  }
 
-      game.push("mines", {x: [-20, 20], y: [-20, 20]})
-        .receive("ok", (payload) => {
-          console.log("Mines", payload.mines)
-          mines = payload.mines
-        })
-    })
+  // Event handlers
 
-  game.on("mines", mines => {
-    console.log(mines)
-  })
+  handleMouseDown(event) {
+    [this.touchX, this.touchY] = [event.clientX, event.clientY]
+    this.isScrolling = true
+  }
+
+  handleMouseUp() {
+    this.isScrolling = false
+  }
+
+  handleMouseMove(event) {
+    if (this.isScrolling) {
+      this.moveCamera(event.clientX, event.clientY)
+      this.isClick = false
+    }
+  }
+
+  handleTouchMove(event) {
+    const x = Math.round(event.touches[0].clientX)
+    const y = Math.round(event.touches[0].clientY)
+    this.moveCamera(x, y)
+  }
+
+  handleClick(event) {
+    if (this.isClick && this.onTileClick) {
+      const [tileX, tileY] = this.getTilePosition(event.offsetX, event.offsetY)
+      this.onTileClick(tileX, tileY)
+    }
+    this.isClick = true
+  }
 }
