@@ -32,5 +32,5 @@ deployment:
       - MIX_ENV=prod mix compile
       - MIX_ENV=prod mix phoenix.digest
       - MIX_ENV=prod mix release --env=prod --no-tar
-      - rsync -qaz --delete -e ssh rel/mana $HOST:$DIR
+      - rsync -qaz --delete -e ssh rel/mana/ $HOST:$DIR
       - ssh $HOST "$DIR/bin/mana restart"
