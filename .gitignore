@@ -2,7 +2,7 @@
 /_build
 /db
 /deps
-/rel
+/rel/mana
 /*.ez
 
 # Generate on crash by the VM

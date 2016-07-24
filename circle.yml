@@ -1,6 +1,8 @@
 machine:
   environment:
     PATH: "$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH"
+    HOST: "mana@mana.my.to"
+    DIR: "/opt/mana"
 
 dependencies:
   pre:
@@ -26,7 +28,9 @@ deployment:
   staging:
     branch: circleci
     commands:
-      - mkdir priv/static || true
+      - mkdir -p priv/static
       - MIX_ENV=prod mix compile
       - MIX_ENV=prod mix phoenix.digest
-      - MIX_ENV=prod mix release --no-confirm-missing
+      - MIX_ENV=prod mix release --env=prod --no-tar
+      - rsync -qaz --delete -e ssh rel/mana $HOST:$DIR
+      - ssh $HOST "$DIR/bin/mana restart"
