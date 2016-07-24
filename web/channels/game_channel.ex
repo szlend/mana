@@ -16,27 +16,16 @@ defmodule Mana.GameChannel do
   end
 
   def handle_in("mines", %{"x" => [from_x, to_x], "y" => [from_y, to_y]}, socket) do
-    seed = "this is a seed for #{socket.assigns.game}"
-    mines = for x <- (from_x .. to_x), y <- (from_y .. to_y), bomb?(seed, x, y), do: [x, y]
+    name = socket.assigns.game
+    {:ok, mines} = GameInstance.mines(name, {from_x, to_x}, {from_y, to_y})
     {:reply, {:ok, %{mines: mines}}, socket}
   end
 
-  # move this shit out of here please
-  defp bomb?(seed, x, y) do
-    rem(:erlang.phash2({seed, x, y}), 1000) > 800
+  def handle_in("reveal", %{"x" => x, "y" => y}, socket) do
+    name = socket.assigns.game
+    user_id = socket.assigns.id
+    {:ok, move} = GameInstance.reveal(name, user_id, x, y)
+    broadcast!(socket, "reveal", %{move: move})
+    {:noreply, socket}
   end
-
-  # def handle_in("create", %{"name" => name}, socket) do
-  #   case Mana.GameSupervisor.create_game(name) do
-  #     {:ok, game} ->
-  #       name = GenServer.call(game, :name)
-  #       {:reply, {:ok, %{name: name}}, socket}
-  #     {:error, _} ->
-  #       {:reply, {:error, %{message: "Oh no, it already exists? maby?"}}, socket}
-  #   end
-  # end
-  #
-  # def handle_in("join", %{"name" => name}, socket) do
-  #
-  # end
 end

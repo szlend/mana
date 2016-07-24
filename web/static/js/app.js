@@ -20,6 +20,8 @@ if (div) {
     let li = document.createElement("li")
     li.innerText = `Clicked on tile (${tileX}, ${tileY})`
     ul.insertBefore(li, ul.firstChild)
+
+    channel.push("reveal", {x: tileX, y: tileY})
   }
 
   game.run()
@@ -34,6 +36,8 @@ if (div) {
   channel.join()
     .receive("error", resp => console.log(`Failed to join game "${name}", response:`, resp))
     .receive("ok", onGameJoin)
+
+  channel.on("reveal", onTileReveal)
 
   function onGameJoin(data) {
     console.log(`Joined game "${name}", with users:`, data.users)
@@ -53,5 +57,9 @@ if (div) {
   function onReceiveMines(data) {
     console.log("Received mines:", data.mines)
     game.mines = data.mines
+  }
+
+  function onTileReveal(data) {
+    console.log(data)
   }
 }
