@@ -11,8 +11,8 @@ dependencies:
     - if ! asdf plugin-list | grep elixir; then asdf plugin-add elixir https://github.com/HashNuke/asdf-elixir.git; fi
     - if ! asdf plugin-list | grep nodejs; then asdf plugin-add nodejs https://github.com/HashNuke/asdf-nodejs.git; fi
     - asdf install
-    - yes | mix deps.get
-    - yes | mix local.rebar
+    - mix do local.hex --force, local.rebar --force
+    - mix deps.get
   cache_directories:
     - ~/.asdf
     - ~/.mix
@@ -22,14 +22,14 @@ dependencies:
 
 test:
   override:
-    - MIX_ENV=test mix test || true
+    - mix test || true
 
 deployment:
   staging:
     branch: circleci
     commands:
       - mkdir -p priv/static
-      - MIX_ENV=prod mix compile
+      - MIX_ENV=prod mix do compile
       - MIX_ENV=prod mix phoenix.digest
       - MIX_ENV=prod mix release --env=prod --no-tar
       - rsync -qaz --delete -e ssh rel/mana/ $HOST:$DIR
