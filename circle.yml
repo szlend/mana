@@ -12,7 +12,9 @@ dependencies:
     - if ! asdf plugin-list | grep nodejs; then asdf plugin-add nodejs https://github.com/HashNuke/asdf-nodejs.git; fi
     - asdf install
     - mix do local.hex --force, local.rebar --force
+  override:
     - mix deps.get
+    - npm install
   cache_directories:
     - ~/.asdf
     - ~/.mix
