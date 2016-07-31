@@ -14,8 +14,8 @@ dependencies:
     - mix do local.hex --force, local.rebar --force
   override:
     - mix deps.get
-    - MIX_ENV=test mix compile
-    - MIX_ENV=prod mix compile
+    - MIX_ENV=test mix deps.compile
+    - MIX_ENV=prod mix deps.compile
     - NODE_ENV=production npm install
   cache_directories:
     - ~/.asdf
