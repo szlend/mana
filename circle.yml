@@ -11,8 +11,8 @@ dependencies:
     - if ! asdf plugin-list | grep elixir; then asdf plugin-add elixir https://github.com/HashNuke/asdf-elixir.git; fi
     - if ! asdf plugin-list | grep nodejs; then asdf plugin-add nodejs https://github.com/HashNuke/asdf-nodejs.git; fi
     - asdf install
-    - mix do local.hex --force, local.rebar --force
   override:
+    - mix do local.hex --force, local.rebar --force
     - mix deps.get
     - MIX_ENV=test mix deps.compile
     - MIX_ENV=prod mix deps.compile
