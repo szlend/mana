@@ -64,16 +64,40 @@ defmodule Mana.GameInstance do
   end
 
   def handle_call({:reveal, user_id, x, y}, _from, %{moves: moves} = state) do
-    move = [:reveal, user_id, x, y]
+    move =
+      if bomb?(state.seed, x, y) do
+        {:bomb, user_id, x, y}
+      else
+        count = adjacent_bombs(state.seed, x, y)
+        if count > 0 do
+          {:adjacent_bombs, user_id, x, y, count}
+        else
+          {:empty, user_id, x, y}
+        end
+      end
     state = %{state | moves: [move | moves]}
     {:reply, {:ok, move}, state}
   end
 
   defp add_user(%{users: users} = state, user_id) do
-    %{ state | users: MapSet.put(users, user_id) }
+    %{state | users: MapSet.put(users, user_id)}
   end
 
   defp bomb?(seed, x, y) do
     rem(:erlang.phash2({seed, x, y}), 1000) > 800
+  end
+
+  defp adjacent_bombs(seed, x, y) do
+    bombs = [
+      bomb?(seed, x + 0, y + 1),
+      bomb?(seed, x + 1, y + 1),
+      bomb?(seed, x + 1, y + 0),
+      bomb?(seed, x + 1, y - 1),
+      bomb?(seed, x + 0, y - 1),
+      bomb?(seed, x - 1, y - 1),
+      bomb?(seed, x - 1, y + 0),
+      bomb?(seed, x - 1, y + 1)
+    ]
+    Enum.reduce(bombs, 0, fn(x, acc) -> acc + if(x, do: 1, else: 0) end)
   end
 end

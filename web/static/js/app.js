@@ -15,6 +15,11 @@ if (div) {
     document.getElementById("game-y").innerText = `Y: ${cameraY}`
   }
 
+  game.onRequestGrid = function(fromX, toX, fromY, toY) {
+    channel.push("mines", {x: [fromX, toX], y: [fromY, toY]})
+      .receive("ok", onReceiveMines)
+  }
+
   game.onTileClick = function(tileX, tileY) {
     const ul = document.getElementById("game-moves")
     let li = document.createElement("li")
@@ -47,7 +52,6 @@ if (div) {
       let li = document.createElement("li")
       li.innerText = user
       ul.insertBefore(li, ul.firstChild)
-      console.log(ul)
     }
 
     channel.push("mines", {x: [-20, 20], y: [-20, 20]})
@@ -55,11 +59,10 @@ if (div) {
   }
 
   function onReceiveMines(data) {
-    console.log("Received mines:", data.mines)
     game.mines = data.mines
   }
 
   function onTileReveal(data) {
-    console.log(data)
+    game.moves.push(data.move)
   }
 }

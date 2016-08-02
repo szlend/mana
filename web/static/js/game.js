@@ -21,13 +21,18 @@ export default class Game {
 
     // Global list of mines (localize later)
     this.mines = []
+    this.moves = []
 
     // Game running state
     this.running = false
 
     // Callbacks
     this.onCameraMove = null
+    this.onRequestGrid = null
     this.onTileClick = null
+
+    // Callback debounce
+    this.onRequestGridTime = 0
   }
 
   run() {
@@ -53,7 +58,6 @@ export default class Game {
     const tileSize = this.tileSize
     const cameraX = this.cameraX
     const cameraY = this.cameraY
-    const mines = this.mines
 
     // Clear screen
     context.clearRect(0, 0, canvas.width, canvas.height)
@@ -63,16 +67,45 @@ export default class Game {
     const renderOffsetY = -tileSize + (cameraY % tileSize)
 
     // Render mines
-    for (const [mineTileX, mineTileY] of mines) {
+    context.fillStyle = "black"
+    for (const [mineTileX, mineTileY] of this.mines) {
       const mineScreenX = cameraX + mineTileX * tileSize
       const mineScreenY = cameraY + mineTileY * tileSize
       context.fillRect(mineScreenX, mineScreenY, tileSize, tileSize)
     }
 
+    // Render exploded mines
+    context.fillStyle = "red"
+    for (const move of this.moves.filter(x => x.type === "bomb")) {
+      const moveScreenX = cameraX + move.x * tileSize
+      const moveScreenY = cameraY + move.y * tileSize
+      context.fillRect(moveScreenX, moveScreenY, tileSize, tileSize)
+    }
+
+    // Render empty tiles
+    context.fillStyle = "lightgray"
+    for (const move of this.moves.filter(x => x.type === "empty")) {
+      const moveScreenX = cameraX + move.x * tileSize
+      const moveScreenY = cameraY + move.y * tileSize
+      context.fillRect(moveScreenX, moveScreenY, tileSize, tileSize)
+    }
+
+    // Render numbered tiles
+    context.fillStyle = "black"
+    context.font = `${tileSize}px sans-serif`
+    context.textAlign = "center"
+    context.textBaseline = "middle"
+    for (const move of this.moves.filter(x => x.type === "adjacent_bombs")) {
+      const moveScreenX = cameraX + move.x * tileSize
+      const moveScreenY = cameraY + move.y * tileSize
+      const numberX = moveScreenX + Math.floor(tileSize / 2)
+      const numberY = moveScreenY + Math.floor(tileSize / 2)
+      context.fillText(move.count.toString(), numberX, numberY)
+    }
+
     // Render grid
     context.beginPath()
-    context.strokeStyle = '#666';
-
+    context.strokeStyle = "#666"
     for (let y = 0; y < canvas.height; y++) {
       for (let x = 0; x < canvas.width; x++) {
         const rectScreenX = renderOffsetX + (x * tileSize)
@@ -80,7 +113,6 @@ export default class Game {
         context.rect(rectScreenX, rectScreenY, tileSize, tileSize)
       }
     }
-
     context.stroke()
 
     requestAnimationFrame(this.render.bind(this))
@@ -90,10 +122,17 @@ export default class Game {
     return [-this.cameraX, this.cameraY]
   }
 
+  getCameraTilePosition() {
+    const [cameraX, cameraY] = this.getCameraPosition()
+    const x = Math.floor(cameraX / this.tileSize)
+    const y = Math.floor(-cameraY / this.tileSize)
+    return [x, y]
+  }
+
   getTilePosition(pixelX, pixelY) {
     const [cameraX, cameraY] = this.getCameraPosition()
     const x = Math.floor((cameraX + pixelX) / this.tileSize)
-    const y = Math.floor((cameraY - pixelY) / this.tileSize)
+    const y = Math.floor((-cameraY + pixelY) / this.tileSize)
     return [x, y]
   }
 
@@ -104,6 +143,15 @@ export default class Game {
     this.touchY = touchY
 
     if (this.onCameraMove) this.onCameraMove(this.cameraX, this.cameraY)
+    if (this.onRequestGrid && this.onRequestGridTime + 500 < Date.now()) {
+      this.onRequestGridTime = Date.now()
+      const [tileX, tileY] = this.getCameraTilePosition()
+      const fromX = tileX - 100
+      const toX = tileX + 100
+      const fromY = tileY - 100
+      const toY = tileY + 100
+      this.onRequestGrid(fromX, toX, fromY, toY)
+    }
   }
 
   // Event handlers

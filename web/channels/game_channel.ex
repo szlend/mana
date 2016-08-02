@@ -25,7 +25,17 @@ defmodule Mana.GameChannel do
     name = socket.assigns.game
     user_id = socket.assigns.id
     {:ok, move} = GameInstance.reveal(name, user_id, x, y)
-    broadcast!(socket, "reveal", %{move: move})
+
+    data = case move do
+      {:bomb, user_id, x, y} ->
+        %{move: %{type: :bomb, user_id: user_id, x: x, y: y}}
+      {:adjacent_bombs, user_id, x, y, count} ->
+        %{move: %{type: :adjacent_bombs, user_id: user_id, x: x, y: y, count: count}}
+      {:empty, user_id, x, y} ->
+        %{move: %{type: :empty, user_id: user_id, x: x, y: y}}
+    end
+
+    broadcast!(socket, "reveal", data)
     {:noreply, socket}
   end
 end
