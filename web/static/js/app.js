@@ -15,22 +15,22 @@ if (div) {
     document.getElementById("game-y").innerText = `Y: ${cameraY}`
   }
 
-  game.onRequestGrid = function(fromX, toX, fromY, toY) {
-    channel.push("mines", {x: [fromX, toX], y: [fromY, toY]})
+  game.onRequestGrid = function(x, y, w, h) {
+    channel.push("mines", {x: x, y: y, w: w, h: h})
       .receive("ok", onReceiveMines)
+
+    channel.push("moves", {x: x, y: y, w: w, h: h})
+      .receive("ok", onReceiveMoves)
   }
 
-  game.onTileClick = function(tileX, tileY) {
+  game.onTileClick = function(x, y) {
     const ul = document.getElementById("game-moves")
     let li = document.createElement("li")
-    li.innerText = `Clicked on tile (${tileX}, ${tileY})`
+    li.innerText = `Clicked on tile (${x}, ${y})`
     ul.insertBefore(li, ul.firstChild)
 
-    channel.push("reveal", {x: tileX, y: tileY})
+    channel.push("reveal", {x: x, y: y})
   }
-
-  game.run()
-  game.onCameraMove(game.cameraX, game.cameraY)
 
   // Channel stuff
   const name = div.dataset.name
@@ -44,6 +44,9 @@ if (div) {
 
   channel.on("reveal", onTileReveal)
 
+  game.run()
+  game.onCameraMove(game.cameraX, game.cameraY)
+
   function onGameJoin(data) {
     console.log(`Joined game "${name}", with users:`, data.users)
 
@@ -53,16 +56,20 @@ if (div) {
       li.innerText = user
       ul.insertBefore(li, ul.firstChild)
     }
-
-    channel.push("mines", {x: [-20, 20], y: [-20, 20]})
-      .receive("ok", onReceiveMines)
   }
 
   function onReceiveMines(data) {
+    console.log(data)
     game.mines = data.mines
   }
 
+  function onReceiveMoves(data) {
+    console.log(data.moves)
+    game.moves = data.moves
+  }
+
   function onTileReveal(data) {
-    game.moves.push(data.move)
+    console.log(data.moves)
+    game.moves = game.moves.concat(data.moves)
   }
 }

@@ -15,27 +15,23 @@ defmodule Mana.GameChannel do
     end
   end
 
-  def handle_in("mines", %{"x" => [from_x, to_x], "y" => [from_y, to_y]}, socket) do
+  def handle_in("moves", %{"x" => x, "y" => y, "w" => w, "h" => h}, socket) do
     name = socket.assigns.game
-    {:ok, mines} = GameInstance.mines(name, {from_x, to_x}, {from_y, to_y})
+    {:ok, moves} = GameInstance.moves(name, {x, y}, {w, h})
+    {:reply, {:ok, %{moves: moves}}, socket}
+  end
+
+  def handle_in("mines", %{"x" => x, "y" => y, "w" => w, "h" => h}, socket) do
+    name = socket.assigns.game
+    {:ok, mines} = GameInstance.mines(name, {x, y}, {w, h})
     {:reply, {:ok, %{mines: mines}}, socket}
   end
 
   def handle_in("reveal", %{"x" => x, "y" => y}, socket) do
     name = socket.assigns.game
     user_id = socket.assigns.id
-    {:ok, move} = GameInstance.reveal(name, user_id, x, y)
-
-    data = case move do
-      {:bomb, user_id, x, y} ->
-        %{move: %{type: :bomb, user_id: user_id, x: x, y: y}}
-      {:adjacent_bombs, user_id, x, y, count} ->
-        %{move: %{type: :adjacent_bombs, user_id: user_id, x: x, y: y, count: count}}
-      {:empty, user_id, x, y} ->
-        %{move: %{type: :empty, user_id: user_id, x: x, y: y}}
-    end
-
-    broadcast!(socket, "reveal", data)
+    {:ok, moves} = GameInstance.reveal(name, user_id, {x, y})
+    broadcast!(socket, "reveal", %{moves: moves})
     {:noreply, socket}
   end
 end

@@ -1,5 +1,6 @@
 defmodule Mana.GameInstance do
   use GenServer
+  alias Mana.Board
 
   # Client
 
@@ -11,12 +12,16 @@ defmodule Mana.GameInstance do
     GenServer.call(via_name(name), {:join, user_id})
   end
 
-  def mines(name, {from_x, to_x}, {from_y, to_y}) do
-    GenServer.call(via_name(name), {:mines, {from_x, to_x}, {from_y, to_y}})
+  def moves(name, {x, y}, {w, h}) do
+    GenServer.call(via_name(name), {:moves, {x, y}, {w, h}})
   end
 
-  def reveal(name, user_id, x, y) do
-    GenServer.call(via_name(name), {:reveal, user_id, x, y})
+  def mines(name, {x, y}, {w, h}) do
+    GenServer.call(via_name(name), {:mines, {x, y}, {w, h}})
+  end
+
+  def reveal(name, user_id, {x, y}) do
+    GenServer.call(via_name(name), {:reveal, user_id, {x, y}})
   end
 
   def get_users(name) do
@@ -37,9 +42,9 @@ defmodule Mana.GameInstance do
     :gproc.reg({:p, :l, :game}, name)
     {:ok, %{
       name: name,
-      seed: :random.uniform(),
+      seed: :rand.uniform(),
       users: MapSet.new(),
-      moves: [],
+      moves: Map.new(),
     }}
   end
 
@@ -53,51 +58,25 @@ defmodule Mana.GameInstance do
 
   def handle_call({:join, user_id}, _from, state) do
     IO.puts "User #{user_id} joined game #{state.name}."
-    {:reply, :ok, add_user(state, user_id)}
+    state = %{state | users: MapSet.put(state.users, user_id)}
+    {:reply, :ok, state}
   end
 
-  def handle_call({:mines, {from_x, to_x}, {from_y, to_y}}, _from, state) do
-    xs = from_x..to_x
-    ys = from_y..to_y
-    mines = for x <- xs, y <- ys, bomb?(state.seed, x, y), do: [x, y]
+  def handle_call({:moves, {x, y}, {w, h}}, _from, state) do
+    moves = Board.serialize_moves(state.moves, {x, y}, {w, h})
+    {:reply, {:ok, moves}, state}
+  end
+
+  def handle_call({:mines, {x, y}, {w, h}}, _from, state) do
+    mines = Board.serialize_mines(state.seed, {x, y}, {w, h})
     {:reply, {:ok, mines}, state}
   end
 
-  def handle_call({:reveal, user_id, x, y}, _from, %{moves: moves} = state) do
-    move =
-      if bomb?(state.seed, x, y) do
-        {:bomb, user_id, x, y}
-      else
-        count = adjacent_bombs(state.seed, x, y)
-        if count > 0 do
-          {:adjacent_bombs, user_id, x, y, count}
-        else
-          {:empty, user_id, x, y}
-        end
-      end
-    state = %{state | moves: [move | moves]}
-    {:reply, {:ok, move}, state}
-  end
-
-  defp add_user(%{users: users} = state, user_id) do
-    %{state | users: MapSet.put(users, user_id)}
-  end
-
-  defp bomb?(seed, x, y) do
-    rem(:erlang.phash2({seed, x, y}), 1000) > 800
-  end
-
-  defp adjacent_bombs(seed, x, y) do
-    bombs = [
-      bomb?(seed, x + 0, y + 1),
-      bomb?(seed, x + 1, y + 1),
-      bomb?(seed, x + 1, y + 0),
-      bomb?(seed, x + 1, y - 1),
-      bomb?(seed, x + 0, y - 1),
-      bomb?(seed, x - 1, y - 1),
-      bomb?(seed, x - 1, y + 0),
-      bomb?(seed, x - 1, y + 1)
-    ]
-    Enum.reduce(bombs, 0, fn(x, acc) -> acc + if(x, do: 1, else: 0) end)
+  def handle_call({:reveal, _user_id, {x, y}}, _from, state) do
+    new_moves = Board.reveal(state.seed, state.moves, {x, y})
+    resp = Board.serialize_moves(new_moves)
+    moves = Map.merge(state.moves, new_moves)
+    state = %{state | moves: moves}
+    {:reply, {:ok, resp}, state}
   end
 end

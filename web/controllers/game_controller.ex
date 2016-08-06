@@ -4,10 +4,6 @@ defmodule Mana.GameController do
   alias Mana.GameInstance
   alias Mana.Game
 
-#  def index(conn, _params) do
-#    render conn, "index.html", games: Repo.all(Game)
-#  end
-
   def index(conn, _params) do
     games =
       GameInstance.list()

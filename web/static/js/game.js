@@ -48,6 +48,10 @@ export default class Game {
     this.canvas.addEventListener("touchmove", this.handleTouchMove.bind(this), false)
     this.canvas.addEventListener("click", this.handleClick.bind(this), false)
 
+    // Request starting grid
+    const [x, y] = this.getCameraTilePosition()
+    if (this.onRequestGrid) this.onRequestGrid(x - 25, y - 25, 50, 50)
+
     // Start rendering
     this.render()
   }
@@ -75,18 +79,23 @@ export default class Game {
     }
 
     // Render exploded mines
-    context.fillStyle = "red"
-    for (const move of this.moves.filter(x => x.type === "bomb")) {
-      const moveScreenX = cameraX + move.x * tileSize
-      const moveScreenY = cameraY + move.y * tileSize
-      context.fillRect(moveScreenX, moveScreenY, tileSize, tileSize)
+    context.fillStyle = "black"
+    context.font = `${tileSize}px sans-serif`
+    context.textAlign = "center"
+    context.textBaseline = "middle"
+    for (const [moveX, moveY] of this.getMineMoves()) {
+      const moveScreenX = cameraX + moveX * tileSize
+      const moveScreenY = cameraY + moveY * tileSize
+      const numberX = moveScreenX + Math.floor(tileSize / 2)
+      const numberY = moveScreenY + Math.floor(tileSize / 2)
+      context.fillText("💥", numberX, numberY)
     }
 
     // Render empty tiles
     context.fillStyle = "lightgray"
-    for (const move of this.moves.filter(x => x.type === "empty")) {
-      const moveScreenX = cameraX + move.x * tileSize
-      const moveScreenY = cameraY + move.y * tileSize
+    for (const [moveX, moveY] of this.getEmptyMoves()) {
+      const moveScreenX = cameraX + moveX * tileSize
+      const moveScreenY = cameraY + moveY * tileSize
       context.fillRect(moveScreenX, moveScreenY, tileSize, tileSize)
     }
 
@@ -95,12 +104,12 @@ export default class Game {
     context.font = `${tileSize}px sans-serif`
     context.textAlign = "center"
     context.textBaseline = "middle"
-    for (const move of this.moves.filter(x => x.type === "adjacent_bombs")) {
-      const moveScreenX = cameraX + move.x * tileSize
-      const moveScreenY = cameraY + move.y * tileSize
+    for (const [moveX, moveY, moveNumber] of this.getNumberMoves()) {
+      const moveScreenX = cameraX + moveX * tileSize
+      const moveScreenY = cameraY + moveY * tileSize
       const numberX = moveScreenX + Math.floor(tileSize / 2)
       const numberY = moveScreenY + Math.floor(tileSize / 2)
-      context.fillText(move.count.toString(), numberX, numberY)
+      context.fillText(moveNumber.toString(), numberX, numberY)
     }
 
     // Render grid
@@ -116,6 +125,18 @@ export default class Game {
     context.stroke()
 
     requestAnimationFrame(this.render.bind(this))
+  }
+
+  getMineMoves() {
+    return this.moves.filter(move => move[2] === 9)
+  }
+
+  getEmptyMoves() {
+    return this.moves.filter(move => move[2] === 0)
+  }
+
+  getNumberMoves() {
+    return this.moves.filter(move => move[2] > 0 && move[2] < 9)
   }
 
   getCameraPosition() {
@@ -145,12 +166,8 @@ export default class Game {
     if (this.onCameraMove) this.onCameraMove(this.cameraX, this.cameraY)
     if (this.onRequestGrid && this.onRequestGridTime + 500 < Date.now()) {
       this.onRequestGridTime = Date.now()
-      const [tileX, tileY] = this.getCameraTilePosition()
-      const fromX = tileX - 100
-      const toX = tileX + 100
-      const fromY = tileY - 100
-      const toY = tileY + 100
-      this.onRequestGrid(fromX, toX, fromY, toY)
+      const [x, y] = this.getCameraTilePosition()
+      this.onRequestGrid(x - 25, y - 25, 50, 50)
     }
   }
 
