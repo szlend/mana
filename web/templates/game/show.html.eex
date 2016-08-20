@@ -1,18 +1,1 @@
-<h1 class="text-center">Game name: <%= @name %></h1>
-<canvas id="game" width="303" height="303" data-name="<%= @name %>"></canvas>
-
-<span id="game-x"></span>, <span id="game-y"></span>
-
-<hr>
-
-<div class="row">
-  <div class="col-xs-6">
-    Moves:
-    <ul id="game-moves"></ul>
-  </div>
-
-  <div class="col-xs-6">
-    Users:
-    <ul id="game-users"></ul>
-  </div>
-</div>
+<canvas id="game" data-name="<%= @name %>"></canvas>

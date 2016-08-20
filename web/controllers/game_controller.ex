@@ -19,7 +19,9 @@ defmodule Mana.GameController do
         |> put_flash(:error, "The specified game does not exist.")
         |> redirect(to: game_path(conn, :index))
       _game ->
-        render(conn, "show.html", name: name)
+        conn
+        |> put_layout("game.html")
+        |> render("show.html", name: name)
     end
   end
 
