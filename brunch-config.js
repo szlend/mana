@@ -43,7 +43,6 @@ exports.config = {
 
   npm: {
     enabled: true,
-    whitelist: ["phoenix", "phoenix_html", "pixi.js", "rx-lite-dom-events"],
     styles: {
       bootstrap: ['dist/css/bootstrap.css']
     }
