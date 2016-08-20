@@ -3,9 +3,8 @@ defmodule Mana.Game.CreateCommand do
 
   def run(name) when is_binary(name) do
     case Mana.GameSupervisor.create_game(name) do
-      {:ok, game} ->
+      {:ok, _} ->
         :ok
-
       {:error, _} ->
         :error
     end
