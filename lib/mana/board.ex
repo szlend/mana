@@ -18,7 +18,7 @@ defmodule Mana.Board do
     if Map.has_key?(new_moves, tile) or Map.has_key?(moves, tile) do
       new_moves
     else
-      count = adjacent_mines(seed) |> Enum.count
+      count = adjacent_mines(seed, tile) |> Enum.count
       tiles = next_tiles(tile)
       new_moves = Map.put(new_moves, tile, make_empty(count))
 
