@@ -49,6 +49,7 @@ export default class Engine {
     this.touchStart = Rx.DOM.touchstart(this.renderer.view)
     this.touchEnd = Rx.DOM.touchend(this.renderer.view)
     this.touchMove = Rx.DOM.touchmove(this.renderer.view)
+    this.mouseScroll = Rx.Observable.fromEvent(this.renderer.view, "mousewheel")
     this.cameraMove = this.cameraMoveObserver()
     this.tileClick = this.tileClickObserver()
 
@@ -261,7 +262,12 @@ export default class Engine {
         ])
     })
 
-    return Rx.Observable.merge(mouse, touch)
+    const scroll = this.mouseScroll.map(event => [
+      this.cameraX + event.deltaX,
+      this.cameraY - event.deltaY
+    ])
+
+    return Rx.Observable.merge(mouse, touch, scroll)
   }
 
   tileClickObserver() {
