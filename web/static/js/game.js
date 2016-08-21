@@ -135,12 +135,15 @@ export default class Engine {
   }
 
   cleanupGrid() {
+    this.map.removeChildren()
     const [tileX, tileY] = this.getCameraTilePosition()
     for (const y in this.grid) {
       for (const x in this.grid[y]) {
         if (Math.abs(tileX - x) > this.requestSize || Math.abs(tileY - y) > this.requestSize) {
-          this.map.removeChild(this.grid[y][x])
+          this.grid[y][x].destroy()
           delete this.grid[y][x]
+        } else {
+          this.map.addChild(this.grid[y][x])
         }
       }
     }
@@ -149,9 +152,8 @@ export default class Engine {
   updateGridMines() {
     for (const [x, y] of this.mines) {
       this.grid[y] = this.grid[y] || {}
-      this.grid[y][x] = this.grid[y][x] || new PIXI.Sprite(this.tiles.flag)
-      this.grid[y][x].position.set(x * this.tileSize, -y * this.tileSize)
-      this.grid[y][x].scale.set(this.textureScale)
+      this.grid[y][x] = this.grid[y][x] || this.newTileSprite(x, y)
+      this.grid[y][x].texture = this.tiles.flag
       this.map.addChild(this.grid[y][x])
     }
     this.update = true
@@ -160,20 +162,8 @@ export default class Engine {
   updateGridMoves() {
     for (const [x, y, move] of this.moves) {
       this.grid[y] = this.grid[y] || {}
-      this.grid[y][x] = this.grid[y][x] || new PIXI.Sprite()
-      this.grid[y][x].position.set(x * this.tileSize, -y * this.tileSize)
-      this.grid[y][x].scale.set(this.textureScale)
-      switch (move) {
-        case 0:
-          this.grid[y][x].texture = this.tiles.empty
-          break
-        case 9:
-          this.grid[y][x].texture = this.tiles.mine
-          break
-        default:
-          this.grid[y][x].texture = this.tiles[move]
-          break
-      }
+      this.grid[y][x] = this.grid[y][x] || this.newTileSprite(x, y)
+      this.grid[y][x].texture = this.getMoveTexture(move)
       this.map.addChild(this.grid[y][x])
     }
     this.update = true
@@ -192,6 +182,24 @@ export default class Engine {
     }
 
     this.onCameraMove(x, y)
+  }
+
+  newTileSprite(x, y) {
+    const sprite = new PIXI.Sprite()
+    sprite.position.set(x * this.tileSize, -y * this.tileSize)
+    sprite.scale.set(this.textureScale)
+    return sprite
+  }
+
+  getMoveTexture(move) {
+    switch (move) {
+      case 0:
+        return this.tiles.empty
+      case 9:
+        return this.tiles.mine
+      default:
+        return this.tiles[move]
+    }
   }
 
   setMines(mines) {
