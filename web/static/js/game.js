@@ -118,8 +118,8 @@ export default class Engine {
 
     if (view.width !== this.width || view.height !== this.height) {
       this.renderer.resize(this.width, this.height)
-      this.backgroundSprite.width = (this.width + 2 * this.tileSize) * this.scale
-      this.backgroundSprite.height = (this.height + 2 * this.tileSize) * this.scale
+      this.backgroundSprite.width = (this.width + 2 * this.tileSize) / this.textureScale
+      this.backgroundSprite.height = (this.height + 2 * this.tileSize) / this.textureScale
       this.requestSize = 3 * Math.round(Math.max(this.width, this.height) / this.tileSize)
       return true
     } else {
