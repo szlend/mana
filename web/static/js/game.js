@@ -42,13 +42,13 @@ export default class Engine {
     this.lastGridRequest = [this.cameraX, this.cameraY]
 
     // Event observers
-    this.mouseDown = Rx.DOM.mousedown(this.renderer.view)
-    this.mouseUp = Rx.DOM.mouseup(this.renderer.view)
-    this.mouseMove = Rx.DOM.mousemove(this.renderer.view)
-    this.mouseOut = Rx.DOM.mouseout(this.renderer.view)
-    this.touchStart = Rx.DOM.touchstart(this.renderer.view)
-    this.touchEnd = Rx.DOM.touchend(this.renderer.view)
-    this.touchMove = Rx.DOM.touchmove(this.renderer.view)
+    this.mouseDown = Rx.Observable.fromEvent(this.renderer.view, "mousedown")
+    this.mouseUp = Rx.Observable.fromEvent(this.renderer.view, "mouseup")
+    this.mouseMove = Rx.Observable.fromEvent(this.renderer.view, "mousemove")
+    this.mouseOut = Rx.Observable.fromEvent(this.renderer.view, "mouseout")
+    this.touchStart = Rx.Observable.fromEvent(this.renderer.view, "touchstart")
+    this.touchEnd = Rx.Observable.fromEvent(this.renderer.view, "touchend")
+    this.touchMove = Rx.Observable.fromEvent(this.renderer.view, "touchmove")
     this.mouseScroll = Rx.Observable.fromEvent(this.renderer.view, "mousewheel")
     this.cameraMove = this.cameraMoveObserver()
     this.tileClick = this.tileClickObserver()
