@@ -1,3 +1,4 @@
+import "babel-polyfill"
 import "phoenix_html"
 import Game from "./game"
 import Network from "./network"
