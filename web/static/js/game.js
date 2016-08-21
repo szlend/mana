@@ -19,7 +19,7 @@ export default class Engine {
 
     // Tileset texture info
     this.textureSize = 128
-    this.textureScale = 1 / (this.textureSize / this.tileSize)
+    this.textureScale = this.tileSize / this.textureSize
 
     // Camera pixel position on the map (top-left)
     this.cameraX = 0
@@ -80,8 +80,8 @@ export default class Engine {
     })
 
     // Set background
-    this.backgroundSprite = new PIXI.extras.TilingSprite(this.tiles.unclear, 0, 0)
-    this.backgroundSprite.scale.set(this.textureScale)
+    this.backgroundSprite = new PIXI.extras.TilingSprite(this.tiles.unclear)
+    this.backgroundSprite.tileScale.set(this.textureScale)
     this.background.addChild(this.backgroundSprite)
 
     // Subscribe to tile clicks
@@ -118,9 +118,9 @@ export default class Engine {
 
     if (view.width !== this.width || view.height !== this.height) {
       this.renderer.resize(this.width, this.height)
-      this.backgroundSprite.width = (this.width + 2 * this.tileSize) / this.textureScale
-      this.backgroundSprite.height = (this.height + 2 * this.tileSize) / this.textureScale
-      this.requestSize = 3 * Math.round(Math.max(this.width, this.height) / this.tileSize)
+      this.backgroundSprite.width = Math.ceil(this.width / this.textureScale)
+      this.backgroundSprite.height = Math.ceil(this.height / this.textureScale)
+      this.requestSize = 3 * Math.ceil(Math.max(this.width, this.height) / this.tileSize)
       return true
     } else {
       return false
@@ -130,8 +130,8 @@ export default class Engine {
   translateMap() {
     this.map.position.x = -this.cameraX
     this.map.position.y = this.cameraY
-    this.backgroundSprite.tilePosition.x = -this.cameraX / this.textureScale
-    this.backgroundSprite.tilePosition.y = this.cameraY / this.textureScale
+    this.backgroundSprite.tilePosition.x = -this.cameraX
+    this.backgroundSprite.tilePosition.y = this.cameraY
   }
 
   cleanupGrid() {
