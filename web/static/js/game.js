@@ -32,6 +32,9 @@ export default class Engine {
     // Game running state
     this.running = false
 
+    // Should the game re-render
+    this.update = true
+
     // Grid size for streaming new moves
     this.requestSize = 0
 
@@ -84,18 +87,7 @@ export default class Engine {
     this.tileClick.subscribe(([x, y]) => this.onTileClick(x, y))
 
     // Subscribe to camera movement
-    this.cameraMove.subscribe(([x, y]) => {
-      this.cameraX = x
-      this.cameraY = y
-      this.onCameraMove(x, y)
-
-      const [x1, y1] = this.getCameraTilePosition()
-      const [x2, y2] = this.lastGridRequest
-      if (Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)) > this.requestSize / 3) {
-        this.cleanupGrid()
-        this.requestGrid()
-      }
-    })
+    this.cameraMove.subscribe(([x, y]) => this.updateCamera(x, y))
 
     // Request starting grid
     this.updateDimensions()
@@ -107,9 +99,11 @@ export default class Engine {
 
   render() {
     const render = this.render.bind(this)
-    this.updateDimensions()
-    this.translateMap()
-    this.renderer.render(this.scene)
+    if (this.update || this.updateDimensions()) {
+      this.translateMap()
+      this.renderer.render(this.scene)
+      this.update = false
+    }
     requestAnimationFrame(render)
   }
 
@@ -126,6 +120,9 @@ export default class Engine {
       this.backgroundSprite.width = (this.width + 2 * this.tileSize) * this.scale
       this.backgroundSprite.height = (this.height + 2 * this.tileSize) * this.scale
       this.requestSize = 3 * Math.round(Math.max(this.width, this.height) / this.tileSize)
+      return true
+    } else {
+      return false
     }
   }
 
@@ -156,6 +153,7 @@ export default class Engine {
       this.grid[y][x].scale.set(this.textureScale)
       this.map.addChild(this.grid[y][x])
     }
+    this.update = true
   }
 
   updateGridMoves() {
@@ -177,6 +175,22 @@ export default class Engine {
       }
       this.map.addChild(this.grid[y][x])
     }
+    this.update = true
+  }
+
+  updateCamera(x, y) {
+    this.cameraX = x
+    this.cameraY = y
+    this.update = true
+
+    const [x1, y1] = this.getCameraTilePosition()
+    const [x2, y2] = this.lastGridRequest
+    if (Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)) > this.requestSize / 3) {
+      this.cleanupGrid()
+      this.requestGrid()
+    }
+
+    this.onCameraMove(x, y)
   }
 
   setMines(mines) {
