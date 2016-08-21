@@ -262,10 +262,13 @@ export default class Engine {
         ])
     })
 
-    const scroll = this.mouseScroll.map(event => [
-      this.cameraX + event.deltaX,
-      this.cameraY - event.deltaY
-    ])
+    const scroll = this.mouseScroll.map(event => {
+      const hasDelta = event.deltaX !== undefined
+      return [
+        this.cameraX + (hasDelta ? event.deltaX : (event.wheelDeltaX || 0)),
+        this.cameraY - (hasDelta ? event.deltaY : (event.wheelDeltaY || event.wheelDelta || 0))
+      ]
+    })
 
     return Rx.Observable.merge(mouse, touch, scroll)
   }
