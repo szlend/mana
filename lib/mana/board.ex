@@ -18,8 +18,8 @@ defmodule Mana.Board do
     if Map.has_key?(new_moves, tile) or Map.has_key?(moves, tile) do
       new_moves
     else
-      tiles = adjacent_tiles(tile)
-      count = adjacent_mines(seed, tiles) |> Enum.count
+      count = adjacent_mines(seed) |> Enum.count
+      tiles = next_tiles(tile)
       new_moves = Map.put(new_moves, tile, make_empty(count))
 
       if count == 0 do
@@ -42,8 +42,16 @@ defmodule Mana.Board do
      {x - 1, y + 1}]
   end
 
-  def adjacent_mines(seed, tiles) do
-    Enum.filter(tiles, fn tile -> mine?(seed, tile) end)
+  def next_tiles({x, y}) do
+    [{x + 0, y + 1},
+     {x + 1, y + 0},
+     {x + 0, y - 1},
+     {x - 1, y + 0}]
+  end
+
+  def adjacent_mines(seed, tile) do
+    adjacent_tiles(tile)
+    |> Enum.filter(fn tile -> mine?(seed, tile) end)
   end
 
   def serialize_moves(moves) do
