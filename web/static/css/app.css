@@ -12,3 +12,65 @@
   cursor: pointer;
   user-select: none;
 }
+
+#console {
+  background-image: url("/images/console-background.jpg");
+  background-repeat: repeat;
+  padding: 10px;
+  border: 10px solid #FB0D1B;
+  border-style: inset;
+  font-family: "Courier New";
+  color: #FFF;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+@media all and (orientation:portrait) {
+  .oriented-console {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    min-height: 190px;
+  }
+
+  .console__left-column {
+    float: left;
+    width: 45%;
+    margin-left: 10px;
+  }
+
+  .console__right-column {
+    float: right;
+    width: 45%;
+    margin-right: 10px;
+  }
+}
+
+@media all and (orientation:landscape) {
+  .oriented-console {
+    position: fixed;
+    width: 30%;
+    min-height: 40%;
+    right: 20px;
+    top: 20px;
+    margin-left: -100px;
+  }
+}
+
+.console__title {
+  text-align: center;
+  width: 100%;
+  font-size: 20px;
+}
+
+.console__player {
+  width: 100%;
+  clear: both;
+}
+.console__player-name {
+  float: left;
+}
+
+.console__player-score {
+  float: right;
+}
