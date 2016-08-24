@@ -63,20 +63,19 @@ defmodule Mana.GameInstance do
   end
 
   def handle_call({:moves, {x, y}, {w, h}}, _from, state) do
-    moves = Board.serialize_moves(state.moves, {x, y}, {w, h})
+    moves = Board.subset_moves(state.moves, {x, y}, {w, h})
     {:reply, {:ok, moves}, state}
   end
 
   def handle_call({:mines, {x, y}, {w, h}}, _from, state) do
-    mines = Board.serialize_mines(state.seed, {x, y}, {w, h})
+    mines = Board.subset_mines(state.seed, {x, y}, {w, h})
     {:reply, {:ok, mines}, state}
   end
 
   def handle_call({:reveal, _user_id, {x, y}}, _from, state) do
     new_moves = Board.reveal(state.seed, state.moves, {x, y})
-    resp = Board.serialize_moves(new_moves)
     moves = Map.merge(state.moves, new_moves)
     state = %{state | moves: moves}
-    {:reply, {:ok, resp}, state}
+    {:reply, {:ok, new_moves}, state}
   end
 end

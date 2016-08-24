@@ -9,7 +9,8 @@ defmodule Mana do
     children = [
       supervisor(Mana.Endpoint, []),
       supervisor(Mana.Repo, []),
-      supervisor(Mana.GameSupervisor, [])
+      supervisor(Mana.GameSupervisor, []),
+      worker(Mana.MoveTracker, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

@@ -21,6 +21,9 @@ export default class Network {
 
   onGameJoin(data) {
     console.log(`Joined game "${this.gameName}", with users:`, data.users)
+    if (data.last_move) {
+      this.game.setCameraTilePosition(data.last_move.x, data.last_move.y)
+    }
   }
 
   onGameJoinError(resp) {
@@ -37,6 +40,7 @@ export default class Network {
 
   onTileReveal(data) {
     this.game.addMoves(data.moves)
+    console.log(data)
   }
 
   onRequestGrid(x, y, w, h) {

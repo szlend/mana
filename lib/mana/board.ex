@@ -46,26 +46,17 @@ defmodule Mana.Board do
     Enum.filter(tiles, fn tile -> mine?(seed, tile) end)
   end
 
-  def serialize_moves(moves) do
-    Enum.map(moves, fn {{x, y}, move} -> [x, y, serialize_move(move)] end)
-  end
-
-  def serialize_moves(moves, {x, y}, {w, h}) do
+  def subset_moves(moves, {x, y}, {w, h}) do
     {p1, p2} = {{x, y}, {x + w, y + h}}
-    Enum.filter_map(moves,
-      fn {{x, y}, _} -> between_points?({x, y}, p1, p2) end,
-      fn {{x, y}, move} -> [x, y, serialize_move(move)] end)
+    Enum.filter(moves, &between_points?(&1, p1, p2)) |> Enum.into(%{})
   end
 
-  def serialize_mines(seed, {x, y}, {w, h}) do
+  def subset_mines(seed, {x, y}, {w, h}) do
     {xs, ys} = {x..x+w-1, y..y+h-1}
-    for x <- xs, y <- ys, mine?(seed, {x, y}), do: [x, y]
+    for x <- xs, y <- ys, mine?(seed, {x, y}), do: {x, y}
   end
 
-  def serialize_move(:mine), do: 9
-  def serialize_move({:empty, count}), do: count
-
-  def between_points?({x, y}, {x1, y1}, {x2, y2}) do
+  defp between_points?({x, y}, {x1, y1}, {x2, y2}) do
     x >= x1 and x < x2 and y >= y1 and y < y2
   end
 end
