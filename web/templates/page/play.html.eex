@@ -1,4 +1,4 @@
-<canvas id="game" data-name="<%= @name %>"></canvas>
+<canvas id="game"></canvas>
 <div id="console" class="oriented-console">
   <div class="console__title">Scores</div>
 

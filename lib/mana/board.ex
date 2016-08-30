@@ -48,7 +48,7 @@ defmodule Mana.Board do
 
   def subset_moves(moves, {x, y}, {w, h}) do
     {p1, p2} = {{x, y}, {x + w, y + h}}
-    Enum.filter(moves, &between_points?(&1, p1, p2)) |> Enum.into(%{})
+    Enum.filter(moves, fn {p, _} -> between_points?(p, p1, p2) end) |> Enum.into(%{})
   end
 
   def subset_mines(seed, {x, y}, {w, h}) do
@@ -56,7 +56,7 @@ defmodule Mana.Board do
     for x <- xs, y <- ys, mine?(seed, {x, y}), do: {x, y}
   end
 
-  defp between_points?({x, y}, {x1, y1}, {x2, y2}) do
+  def between_points?({x, y}, {x1, y1}, {x2, y2}) do
     x >= x1 and x < x2 and y >= y1 and y < y2
   end
 end

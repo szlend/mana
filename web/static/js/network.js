@@ -1,12 +1,11 @@
 import {Socket} from "phoenix"
 
 export default class Network {
-  constructor(game, gameName, token) {
+  constructor(game, token) {
     this.game = game
-    this.gameName = gameName
     this.token = token
     this.socket = new Socket("/socket", {params: {token}})
-    this.channel = this.socket.channel(`game:${gameName}`)
+    this.channel = this.socket.channel("game")
   }
 
   connect() {
@@ -20,14 +19,14 @@ export default class Network {
   }
 
   onGameJoin(data) {
-    console.log(`Joined game "${this.gameName}", with users:`, data.users)
+    console.log(`Joined game with users:`, data.users)
     if (data.last_move) {
       this.game.setCameraTilePosition(data.last_move.x, data.last_move.y)
     }
   }
 
   onGameJoinError(resp) {
-    console.log(`Failed to join game "${this.gameName}", response:`, resp)
+    console.log(`Failed to join game, response:`, resp)
   }
 
   onReceiveMines(data) {
@@ -40,7 +39,6 @@ export default class Network {
 
   onTileReveal(data) {
     this.game.addMoves(data.moves)
-    console.log(data)
   }
 
   onRequestGrid(x, y, w, h) {

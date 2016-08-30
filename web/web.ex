@@ -50,7 +50,6 @@ defmodule Mana.Web do
       use Phoenix.HTML
 
       import Mana.Router.Helpers
-      import Mana.Auth.Helpers
       import Mana.ErrorHelpers
       import Mana.Gettext
     end
@@ -70,14 +69,6 @@ defmodule Mana.Web do
       import Ecto
       import Ecto.Query, only: [from: 1, from: 2]
       import Mana.Gettext
-    end
-  end
-
-  def command do
-    quote do
-      alias Mana.Repo
-      import Ecto
-      import Ecto.Query, only: [from: 1, from: 2]
     end
   end
 

@@ -1,14 +1,8 @@
-<div class="jumbotron">
-  <div class="menu">
-  | <a href="<%= game_path(@conn, :new) %>">New Game</a>
-  | <a href="<%= game_path(@conn, :index) %>">List games</a>
-  | <a href="<%= session_path(@conn, :new) %>">Log in</a>
-  | <a href="<%= registration_path(@conn, :new) %>">Register</a>
-  | <a href="#">Edit profile</a>
-  | <a href="<%= session_path(@conn, :delete) %>">Log out</a> |
-  </div>
-  <hr>
+<div class="jumbotron text-center">
   <h2>Mana</h2>
   <p class="lead">Multiplayer minesweeper</p>
   <img src="https://image.spreadshirtmedia.com/image-server/v1/designs/11129866.png" />
+  <br>
+  <br>
+  <%= link "Join game", to: page_path(@conn, :play), class: "btn btn-lg btn-primary" %>
 </div>

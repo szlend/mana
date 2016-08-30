@@ -1,25 +1,17 @@
 defmodule Mana.UserSocket do
   use Phoenix.Socket
-  import Guardian.Phoenix.Socket
 
   ## Channels
-  channel "game:*", Mana.GameChannel
+  channel "game", Mana.GameChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket, timeout: 45_000
   transport :longpoll, Phoenix.Transports.LongPoll
 
   def connect(%{"token" => token}, socket) do
-    case sign_in(socket, token) do
-      {:ok, socket, _} ->
-        user = current_resource(socket)
-        {:ok, socket |> assign(:id, user.id)}
-      _ ->
-        :error
-    end
+    socket = assign(socket, :token, token)
+    {:ok, socket}
   end
 
-  def id(socket) do
-    "user:" <> Integer.to_string(socket.assigns.id)
-  end
+  def id(_socket), do: nil
 end

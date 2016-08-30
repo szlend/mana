@@ -27,15 +27,6 @@ config :phoenix, :generators,
   migration: true,
   binary_id: false
 
-config :guardian, Guardian,
-  allowed_algos: ["HS512"],
-  verify_module: Guardian.JWT,
-  issuer: "Mana",
-  ttl: { 30, :days },
-  verify_issuer: true,
-  serializer: Mana.GuardianSerializer,
-  secret_key: "uyE5qrCDyIPW0nL3q49XSgLuDdqtE7XcMX1yKD4m5b01exJvNoTUwhp52H23L3rf"
-
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"
