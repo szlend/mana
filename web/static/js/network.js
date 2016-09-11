@@ -13,15 +13,16 @@ export default class Network {
     this.game.onTileClick = this.onTileClick.bind(this)
     this.socket.connect()
     this.channel.join()
-      .receive("error", this.onGameJoinError.bind(this))
       .receive("ok", this.onGameJoin.bind(this))
-    this.channel.on("reveal", this.onTileReveal.bind(this))
+      .receive("error", this.onGameJoinError.bind(this))
   }
 
   onGameJoin(data) {
     console.log(`Joined game with users:`, data.users)
     if (data.last_move) {
-      this.game.setCameraTilePosition(data.last_move.x, data.last_move.y)
+      this.game.setCameraTileCoordinates(data.last_move.x, data.last_move.y)
+    } else {
+      this.game.setCameraTileCoordinates(0, 0)
     }
   }
 
@@ -29,25 +30,26 @@ export default class Network {
     console.log(`Failed to join game, response:`, resp)
   }
 
-  onReceiveMines(data) {
-    this.game.setMines(data.mines)
+  onGridJoin(data) {
+    console.log(`Joined grid (${data.x}, ${data.y})`, data)
+    this.game.addMoves(data.moves)
+    this.game.addMines(data.mines)
   }
 
-  onReceiveMoves(data) {
-    this.game.setMoves(data.moves)
+  onGridJoinError(resp) {
+    console.log(`Failed to join grid, response:`, resp)
   }
 
   onTileReveal(data) {
     this.game.addMoves(data.moves)
   }
 
-  onRequestGrid(x, y, w, h) {
-    this.channel
-      .push("mines", {x: x, y: y, w: w, h: h})
-      .receive("ok", this.onReceiveMines.bind(this))
-    this.channel
-      .push("moves", {x: x, y: y, w: w, h: h})
-      .receive("ok", this.onReceiveMoves.bind(this))
+  onRequestGrid(x, y) {
+    const channel = this.socket.channel(`grid:${x}:${y}`)
+    channel.join()
+      .receive("ok", this.onGridJoin.bind(this))
+      .receive("error", this.onGridJoinError.bind(this))
+    channel.on("reveal", this.onTileReveal.bind(this))
   }
 
   onTileClick(x, y) {

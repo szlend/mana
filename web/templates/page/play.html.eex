@@ -1,5 +1,5 @@
-<canvas id="game"></canvas>
-<div id="console" class="oriented-console">
+<canvas id="game" data-token="<%= @token %>" data-size="<%= @size %>"></canvas>
+<!-- <div id="console" class="oriented-console">
   <div class="console__title">Scores</div>
 
   <div class="console__left-column">
@@ -56,4 +56,4 @@
       <div class="console__player-score">2363</div>
     </div>
   </div>
-</div>
+</div> -->

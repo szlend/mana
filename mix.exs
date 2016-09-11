@@ -19,7 +19,7 @@ defmodule Mana.Mixfile do
   def application do
     [mod: {Mana, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex]]
+                    :phoenix_ecto, :postgrex, :retry, :syn]]
   end
 
   # Specifies which paths to compile per environment.
@@ -39,6 +39,9 @@ defmodule Mana.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:ecto, "~> 2.0.0"},
+     {:hash_ring, github: "voicelayer/hash-ring"},
+     {:syn, "~> 1.5"},
+     {:retry, "~> 0.5.0"},
      {:credo, "~> 0.4", only: [:dev, :test]}]
   end
 

@@ -4,11 +4,12 @@ import Game from "./game"
 import Network from "./network"
 
 if (window.gamePage) {
-  const token = window.userToken
   const canvas = document.getElementById("game")
-  const game = new Game(canvas, {scale: window.devicePixelRatio})
+  const token = canvas.dataset.token
+  const size = parseInt(canvas.dataset.size)
+  const game = new Game(canvas, size, {scale: window.devicePixelRatio})
   const network = new Network(game, token)
   network.connect()
   game.run()
-  window.teleport = game.setCameraTilePosition.bind(game)
+  window.teleport = game.setCameraTileCoordinates.bind(game)
 }

@@ -1,20 +1,20 @@
 import PIXI from "pixi.js"
 import Rx from "rx-lite-dom-events"
+import {mod} from "./util"
 
 export default class Engine {
-  constructor(canvas, options = {}) {
+  constructor(canvas, gridSize, options = {}) {
     this.renderer = PIXI.autoDetectRenderer(0, 0, {view: canvas, backgroundColor: 0xFFFFFF})
     this.scene = new PIXI.Container()
-    this.background = new PIXI.Container()
-    this.map = new PIXI.ParticleContainer()
-    this.grid = {}
+    this.map = new PIXI.Container()
+    this.grid = []
 
-    this.scene.addChild(this.background)
     this.scene.addChild(this.map)
 
     this.scale = options.scale || 1
     this.width = 0
     this.height = 0
+    this.gridSize = gridSize
     this.tileSize = 32 * this.scale
 
     // Tileset texture info
@@ -25,21 +25,17 @@ export default class Engine {
     this.cameraX = 0
     this.cameraY = 0
 
-    // Global list of mines (localize later)
-    this.mines = []
-    this.moves = []
+    // List of all moves
+    this.moves = {}
+
+    // List of subscribed grids
+    this.grids = []
 
     // Game running state
     this.running = false
 
     // Should the game re-render
     this.update = true
-
-    // Grid size for streaming new moves
-    this.requestSize = 0
-
-    // Last position we streamed in new moves
-    this.lastGridRequest = [this.cameraX, this.cameraY]
 
     // Event observers
     this.mouseDown = Rx.Observable.fromEvent(this.renderer.view, "mousedown")
@@ -65,24 +61,19 @@ export default class Engine {
 
     // Set tiles
     this.tiles = this.loadTiles({
-      unclear: [  0,   0],
-      flag:    [128,   0],
-      mine:    [256,   0],
-      empty:   [384,   0],
-      [1]:     [  0, 128],
-      [2]:     [128, 128],
-      [3]:     [256, 128],
-      [4]:     [384, 128],
-      [5]:     [  0, 256],
-      [6]:     [128, 256],
-      [7]:     [256, 256],
-      [8]:     [384, 256]
+      [-1]: [  0,   0],  // unclear
+      [10]: [128,   0],  // flag
+      [9]:  [256,   0],  // mine
+      [0]:  [384,   0],  // empty
+      [1]:  [  0, 128],  // 1
+      [2]:  [128, 128],  // 2
+      [3]:  [256, 128],  // 3
+      [4]:  [384, 128],  // 4
+      [5]:  [  0, 256],  // 5
+      [6]:  [128, 256],  // 6
+      [7]:  [256, 256],  // 7
+      [8]:  [384, 256]   // 8
     })
-
-    // Set background
-    this.backgroundSprite = new PIXI.extras.TilingSprite(this.tiles.unclear)
-    this.backgroundSprite.tileScale.set(this.textureScale)
-    this.background.addChild(this.backgroundSprite)
 
     // Subscribe to tile clicks
     this.tileClick.subscribe(([x, y]) => this.onTileClick(x, y))
@@ -91,24 +82,30 @@ export default class Engine {
     this.cameraMove.subscribe(([x, y]) => this.updateCamera(x, y))
 
     // Request starting grid
-    this.updateDimensions()
-    this.setCameraTilePosition(0, 0)
+    this.resizeContainer()
+    this.setCameraTileCoordinates(0, 0)
 
     // Start rendering
     this.render()
+
+    // Fix issue with render after slow resize
+    setTimeout(() => this.update = true, 100)
   }
 
   render() {
     const render = this.render.bind(this)
-    if (this.update || this.updateDimensions()) {
-      this.translateMap()
+    this.resizeContainer()
+    if (this.update) {
+      this.updateGrid()
+      this.map.position.x = -mod(this.cameraX, this.tileSize)
+      this.map.position.y = -mod(this.cameraY, this.tileSize)
       this.renderer.render(this.scene)
       this.update = false
     }
     requestAnimationFrame(render)
   }
 
-  updateDimensions() {
+  resizeContainer() {
     const view = this.renderer.view
     const width = view.clientWidth
     const height = view.clientHeight
@@ -118,55 +115,69 @@ export default class Engine {
 
     if (view.width !== this.width || view.height !== this.height) {
       this.renderer.resize(this.width, this.height)
-      this.backgroundSprite.width = Math.ceil(this.width / this.textureScale)
-      this.backgroundSprite.height = Math.ceil(this.height / this.textureScale)
       this.requestSize = 3 * Math.ceil(Math.max(this.width, this.height) / this.tileSize)
-      return true
-    } else {
-      return false
+      this.resizeGrid()
+      this.update = true
     }
   }
 
-  translateMap() {
-    this.map.position.x = -this.cameraX
-    this.map.position.y = this.cameraY
-    this.backgroundSprite.tilePosition.x = -this.cameraX
-    this.backgroundSprite.tilePosition.y = this.cameraY
-  }
+  resizeGrid() {
+    const tileSize = this.tileSize
+    const [width, height] = this.getTileDimensions()
+    const length = width * height
 
-  cleanupGrid() {
-    this.map.removeChildren()
-    const [tileX, tileY] = this.getCameraTilePosition()
-    for (const y in this.grid) {
-      for (const x in this.grid[y]) {
-        if (Math.abs(tileX - x) > this.requestSize || Math.abs(tileY - y) > this.requestSize) {
-          this.grid[y][x].destroy()
-          delete this.grid[y][x]
-        } else {
-          this.map.addChild(this.grid[y][x])
-        }
+    // skip if grid already correct size
+    if (this.grid.length === length) {
+      return
+    }
+
+    // add sprites to grid
+    while (this.grid.length < length) {
+      const sprite = new PIXI.Sprite()
+      sprite.scale.set(this.textureScale)
+      this.grid.push(sprite)
+      this.map.addChild(sprite)
+    }
+
+    // remove sprites from grid
+    while (this.grid.length > length) {
+      const sprite = this.grid.pop()
+      this.map.removeChild(sprite)
+    }
+
+    if (this.grid.length > length) {
+      this.grid.splice(0, length)
+    }
+
+    // update sprite positions
+    let i = 0
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const sprite = this.grid[i]
+        sprite.position.x = x * tileSize
+        sprite.position.y = y * tileSize
+        i++
       }
     }
   }
 
-  updateGridMines() {
-    for (const [x, y] of this.mines) {
-      this.grid[y] = this.grid[y] || {}
-      this.grid[y][x] = this.grid[y][x] || this.newTileSprite(x, y)
-      this.grid[y][x].texture = this.tiles.flag
-      this.map.addChild(this.grid[y][x])
-    }
-    this.update = true
-  }
+  updateGrid() {
+    const tileSize = this.tileSize
+    const [width, height] = this.getTileDimensions()
+    const offsetX = Math.floor(this.cameraX / tileSize)
+    const offsetY = Math.floor(this.cameraY / tileSize)
+    const endX = offsetX + width
+    const endY = offsetY + height
 
-  updateGridMoves() {
-    for (const [x, y, move] of this.moves) {
-      this.grid[y] = this.grid[y] || {}
-      this.grid[y][x] = this.grid[y][x] || this.newTileSprite(x, y)
-      this.grid[y][x].texture = this.getMoveTexture(move)
-      this.map.addChild(this.grid[y][x])
+    let i = 0
+    for (let y = offsetY; y < endY; y++) {
+      for (let x = offsetX; x < endX; x++) {
+        const sprite = this.grid[i]
+        const move = this.moves[y] && this.moves[y][x]
+        sprite.texture = move === undefined ? this.tiles[-1] : this.tiles[move]
+        i++
+      }
     }
-    this.update = true
   }
 
   updateCamera(x, y) {
@@ -174,78 +185,122 @@ export default class Engine {
     this.cameraY = y
     this.update = true
 
-    const [x1, y1] = this.getCameraTilePosition()
-    const [x2, y2] = this.lastGridRequest
-    if (Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)) > this.requestSize / 3) {
-      this.cleanupGrid()
-      this.requestGrid()
-    }
-
+    this.requestGrid()
     this.onCameraMove(x, y)
   }
 
-  newTileSprite(x, y) {
-    const sprite = new PIXI.Sprite()
-    sprite.position.set(x * this.tileSize, -y * this.tileSize)
-    sprite.scale.set(this.textureScale)
-    return sprite
+  getGridsInView() {
+    const size = this.gridSize
+    const [midX, midY] = this.getCameraTileCoordinates()
+    const [midGridX, midGridY] = [midX - size / 2, midY - size / 2]
+    const x1 = Math.floor(midGridX / size) * size
+    const y1 = Math.floor(midGridY / size) * size
+    const x2 = Math.ceil(midGridX / size) * size
+    const y2 = Math.ceil(midGridY / size) * size
+
+    return [[x1, y1], [x1, y2], [x2, y1], [x2, y2]]
   }
 
-  getMoveTexture(move) {
-    switch (move) {
-      case 0:
-        return this.tiles.empty
-      case 9:
-        return this.tiles.mine
-      default:
-        return this.tiles[move]
+  gridsDiff(g1, g2) {
+    const added = []
+    const removed = []
+
+    for (let [x1, y1] of g1) {
+      let found = false
+      for (let [x2, y2] of g2) {
+        if (x1 === x2 && y1 === y2) {
+          found = true
+          break
+        }
+      }
+
+      if (!found) {
+        added.push([x1, y1])
+      }
     }
-  }
 
-  setMines(mines) {
-    this.mines = mines
-    this.updateGridMines()
-  }
+    for (let [x2, y2] of g2) {
+      let found = false
+      for (let [x1, y1] of g1) {
+        if (x1 === x2 && y1 === y2) {
+          found = true
+          break
+        }
+      }
 
-  setMoves(moves) {
-    this.moves = moves
-    this.updateGridMoves()
-  }
+      if (!found) {
+        removed.push([x2, y2])
+      }
+    }
 
-  addMoves(moves) {
-    this.moves = this.moves.concat(moves)
-    this.updateGridMoves()
-  }
-
-  getCameraTilePosition() {
-    const x = Math.floor(this.cameraX / this.tileSize)
-    const y = Math.floor(this.cameraY / this.tileSize)
-    const midX = Math.round(this.width / this.tileSize / 2)
-    const midY = Math.round(this.height / this.tileSize / 2)
-    return [x + midX, y - midY]
-  }
-
-  setCameraTilePosition(x, y) {
-    const midX = Math.round(this.width / 2)
-    const midY = Math.round(this.height / 2)
-    const pixelX = x * this.tileSize
-    const pixelY = y * this.tileSize
-    this.cameraX = pixelX - midX
-    this.cameraY = pixelY + midY
-    this.requestGrid()
-  }
-
-  getTilePosition(pixelX, pixelY) {
-    const x = Math.floor((this.cameraX + (pixelX * this.scale)) / this.tileSize)
-    const y = Math.ceil((this.cameraY - (pixelY * this.scale)) / this.tileSize)
-    return [x, y]
+    return [added, removed]
   }
 
   requestGrid() {
-    const [x, y] = this.getCameraTilePosition()
-    const margin = Math.ceil(this.requestSize / 2)
-    this.lastGridRequest = [x, y]
-    this.onRequestGrid(x - margin, y - margin, this.requestSize, this.requestSize)
+    const grids = this.getGridsInView()
+    const [added, removed] = this.gridsDiff(grids, this.grids)
+
+    for (const [x, y] of added) {
+      this.onRequestGrid(x, y)
+    }
+
+    for (const [x, y] of removed) {
+      this.cleanupGrid(x, y)
+    }
+
+    this.grids = grids
+  }
+
+  cleanupGrid(fromX, fromY) {
+    const toX = fromX + this.gridSize
+    const toY = fromY + this.gridSize
+    for (const y in this.moves) {
+      for (const x in this.moves[y]) {
+        if (x >= fromX && x < toX && y >= fromY && y < toY) {
+          delete this.moves[y][x]
+        }
+      }
+    }
+  }
+
+  addMoves(moves) {
+    for (const [x, y, move] of moves) {
+      this.moves[y] = this.moves[y] || {}
+      this.moves[y][x] = move
+    }
+    this.update = true
+  }
+
+  addMines(mines) {
+    for (const [x, y] of mines) {
+      this.moves[y] = this.moves[y] || {}
+      this.moves[y][x] = 10
+    }
+    this.update = true
+  }
+
+  getTileDimensions() {
+    const width = Math.ceil(this.width / this.tileSize) + 1
+    const height = Math.ceil(this.height / this.tileSize) + 1
+    return [width, height]
+  }
+
+  getScreenTileCoordinates(pixelX, pixelY) {
+    const x = Math.floor((this.cameraX + (pixelX * this.scale)) / this.tileSize)
+    const y = Math.floor((this.cameraY + (pixelY * this.scale)) / this.tileSize)
+    return [x, y]
+  }
+
+  getCameraTileCoordinates() {
+    const x = Math.round((this.cameraX + this.width / 2) / this.tileSize)
+    const y = Math.round((this.cameraY + this.height / 2) / this.tileSize)
+    return [x, y]
+  }
+
+  setCameraTileCoordinates(x, y) {
+    const midX = Math.round(this.width / 2)
+    const midY = Math.round(this.height / 2)
+    this.updateCamera(midX + x * this.tileSize, midY + y * this.tileSize)
   }
 
   cameraMoveObserver() {
@@ -256,7 +311,7 @@ export default class Engine {
         .takeUntil(this.mouseOut)
         .map(moveEvent => [
           cameraX + (downEvent.clientX - moveEvent.clientX) * this.scale,
-          cameraY - (downEvent.clientY - moveEvent.clientY) * this.scale
+          cameraY + (downEvent.clientY - moveEvent.clientY) * this.scale
         ])
     })
 
@@ -266,7 +321,7 @@ export default class Engine {
         .takeUntil(this.touchEnd)
         .map(moveEvent => [
           cameraX + (startEvent.touches[0].clientX - moveEvent.touches[0].clientX) * this.scale,
-          cameraY - (startEvent.touches[0].clientY - moveEvent.touches[0].clientY) * this.scale
+          cameraY + (startEvent.touches[0].clientY - moveEvent.touches[0].clientY) * this.scale
         ])
     })
 
@@ -274,7 +329,7 @@ export default class Engine {
       const hasDelta = event.deltaX !== undefined
       return [
         this.cameraX + (hasDelta ? event.deltaX : (event.wheelDeltaX || 0)),
-        this.cameraY - (hasDelta ? event.deltaY : (event.wheelDeltaY || event.wheelDelta || 0))
+        this.cameraY + (hasDelta ? event.deltaY : (event.wheelDeltaY || event.wheelDelta || 0))
       ]
     })
 
@@ -288,7 +343,7 @@ export default class Engine {
       return this.mouseUp
         .map(upEvent => [upEvent.clientX, upEvent.clientY])
         .filter(p2 => dist(p1, p2) <= this.scale)
-        .map(([x, y]) => this.getTilePosition(x, y))
+        .map(([x, y]) => this.getScreenTileCoordinates(x, y))
     })
 
     const touch = this.touchStart.flatMap(startEvent => {
@@ -296,7 +351,7 @@ export default class Engine {
       return this.touchEnd
         .map(endEvent => [endEvent.changedTouches[0].clientX, endEvent.changedTouches[0].clientY])
         .filter(p2 => dist(p1, p2) <= this.scale)
-        .map(([x, y]) => this.getTilePosition(x, y))
+        .map(([x, y]) => this.getScreenTileCoordinates(x, y))
     })
 
     return Rx.Observable.merge(mouse, touch)
