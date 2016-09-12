@@ -6,7 +6,7 @@ defmodule Mana.Ring do
   def start_link(), do: GenServer.start_link(__MODULE__, [], name: __MODULE__)
 
   def find(name) do
-    {:ok, node} = :hash_ring.find_node(:reveal, inspect(name))
+    {:ok, node} = :hash_ring.find_node(:mana_ring, inspect(name))
     :"#{node}"
   end
 
@@ -16,8 +16,8 @@ defmodule Mana.Ring do
 
   def init(_) do
     :ok = :net_kernel.monitor_nodes(true, [node_type: :all])
-    :ok = :hash_ring.create_ring(:reveal, 128)
-    :ok = :hash_ring.add_node(:reveal, "#{Node.self}")
+    :ok = :hash_ring.create_ring(:mana_ring, 128)
+    :ok = :hash_ring.add_node(:mana_ring, "#{Node.self}")
     {:ok, []}
   end
 
@@ -29,7 +29,7 @@ defmodule Mana.Ring do
   end
 
   def handle_info({:nodeup, node}, nodes) do
-    :ok = :hash_ring.add_node(:reveal, "#{node}")
+    :ok = :hash_ring.add_node(:mana_ring, "#{node}")
     {:noreply, [node | nodes]}
   end
 
@@ -38,7 +38,7 @@ defmodule Mana.Ring do
   end
 
   def handle_info({:nodedown, node}, nodes) do
-    :ok = :hash_ring.remove_node(:reveal, "#{node}")
+    :ok = :hash_ring.remove_node(:mana_ring, "#{node}")
     {:noreply, nodes -- [node]}
   end
 
@@ -47,6 +47,6 @@ defmodule Mana.Ring do
   end
 
   def terminate(_reason, _state) do
-    :ok = :hash_ring.delete_ring(:reveal)
+    :ok = :hash_ring.delete_ring(:mana_ring)
   end
 end
