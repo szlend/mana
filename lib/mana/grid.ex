@@ -41,16 +41,7 @@ defmodule Mana.Grid do
   def init({x, y}) do
     state = %{from: {x, y}, to: {x + @size - 1, y + @size - 1},
               seed: @seed, moves: %{}}
-    IO.puts("Starting #{inspect({x, y})}")
     {:ok, state}
-  end
-
-  def handle_call({:swarm, :begin_handoff}, _from, state) do
-    {:reply, {:resume, state}, state}
-  end
-
-  def handle_call({:swarm, :end_handoff, state}, _from, _) do
-    {:reply, :ok, state}
   end
 
   def handle_call({:reveal, {x, y}}, _from, state) do
@@ -67,10 +58,6 @@ defmodule Mana.Grid do
     moves = Map.merge(state.moves, new_moves)
     broadcast_moves(state, new_moves)
     {:noreply, %{state | moves: moves}}
-  end
-
-  def handle_info({:swarm, :die}, state) do
-    {:stop, :shutdown, state}
   end
 
   def reveal(state, tile) do
