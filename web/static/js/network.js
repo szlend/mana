@@ -6,10 +6,12 @@ export default class Network {
     this.token = token
     this.socket = new Socket("/socket", {params: {token}})
     this.channel = this.socket.channel("game")
+    this.grids = {}
   }
 
   connect() {
     this.game.onRequestGrid = this.onRequestGrid.bind(this)
+    this.game.onDisposeGrid = this.onDisposeGrid.bind(this)
     this.game.onTileClick = this.onTileClick.bind(this)
     this.socket.connect()
     this.channel.join()
@@ -40,16 +42,35 @@ export default class Network {
     console.log(`Failed to join grid, response:`, resp)
   }
 
+  onGridLeave(grid) {
+    console.log(`Left grid (${grid.x}, ${grid.y})`)
+    this.game.cleanupGrid(grid.x, grid.y)
+  }
+
   onTileReveal(data) {
     this.game.addMoves(data.moves)
   }
 
   onRequestGrid(x, y) {
-    const channel = this.socket.channel(`grid:${x}:${y}`)
-    channel.join()
-      .receive("ok", this.onGridJoin.bind(this))
-      .receive("error", this.onGridJoinError.bind(this))
-    channel.on("reveal", this.onTileReveal.bind(this))
+    const name = `grid:${x}:${y}`
+    if (!this.grids[name]) {
+      const channel = this.socket.channel(name)
+      channel.join()
+        .receive("ok", this.onGridJoin.bind(this))
+        .receive("error", this.onGridJoinError.bind(this))
+      channel.onClose(this.onGridLeave.bind(this, {x: x, y: y}))
+      channel.onError(this.onGridLeave.bind(this, {x: x, y: y}))
+      channel.on("reveal", this.onTileReveal.bind(this))
+      this.grids[name] = channel
+    }
+  }
+
+  onDisposeGrid(x, y) {
+    const name = `grid:${x}:${y}`
+    if (this.grids[name]) {
+      this.grids[name].leave()
+      delete this.grids[name]
+    }
   }
 
   onTileClick(x, y) {

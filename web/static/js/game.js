@@ -51,8 +51,9 @@ export default class Engine {
 
     // Callbacks
     this.onCameraMove = () => {}
-    this.onRequestGrid = () => {}
     this.onTileClick = () => {}
+    this.onRequestGrid = () => {}
+    this.onDisposeGrid = () => {}
   }
 
   run() {
@@ -245,7 +246,7 @@ export default class Engine {
     }
 
     for (const [x, y] of removed) {
-      this.cleanupGrid(x, y)
+      this.onDisposeGrid(x, y)
     }
 
     this.grids = grids
@@ -261,6 +262,7 @@ export default class Engine {
         }
       }
     }
+    this.update = true
   }
 
   addMoves(moves) {
