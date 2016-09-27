@@ -23,6 +23,9 @@ erl_crash.dump
 # variables.
 /config/prod.secret.exs
 
+# Releases
+/.deliver/releases
+
 # EMACZ
 *~
 *#
