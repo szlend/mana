@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+APP="mana"
+
+BUILD_HOST="mana-build.my.to"
+BUILD_USER="mana"
+BUILD_AT="/tmp/mana/builds"
+
+PRODUCTION_HOSTS="mana1.my.to mana2.my.to"
+PRODUCTION_USER="mana"
+DELIVER_TO="/opt"
+
+pre_erlang_clean_compile() {
+  status "Preparing assets with: brunch build and phoenix.digest"
+  __sync_remote "
+    # fail if any command fails (recommended)
+    set -e
+
+    # enter the build directory on the build host (required)
+    cd '$BUILD_AT'
+
+    # installing npm dependencies
+    npm install
+
+    # export node binaries
+    export PATH='node_modules/.bin:$PATH'
+
+    # building brunch
+    brunch build --production
+
+    # required by the phoenix.digest task
+    mkdir -p priv/static
+
+    # run phoenix.digest
+    APP='$APP' MIX_ENV='$TARGET_MIX_ENV' $MIX_CMD phoenix.digest $SILENCE
+  "
+}
