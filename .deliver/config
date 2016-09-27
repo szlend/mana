@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+APP="mana"
+
+BUILD_HOST="mana-build.my.to"
+BUILD_USER="mana"
+BUILD_AT="/tmp/mana/builds"
+
+PRODUCTION_HOSTS="mana1.my.to mana2.my.to"
+PRODUCTION_USER="mana"
+DELIVER_TO="/opt/mana"

@@ -19,7 +19,7 @@ defmodule Mana.Mixfile do
   def application do
     [mod: {Mana, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :retry, :syn]]
+                    :phoenix_ecto, :postgrex, :retry, :syn, :edeliver]]
   end
 
   # Specifies which paths to compile per environment.
@@ -42,7 +42,9 @@ defmodule Mana.Mixfile do
      {:hash_ring, github: "voicelayer/hash-ring"},
      {:syn, "~> 1.5"},
      {:retry, "~> 0.5.0"},
-     {:credo, "~> 0.4", only: [:dev, :test]}]
+     {:credo, "~> 0.4", only: [:dev, :test]},
+     {:edeliver, "~> 1.4.0"},
+     {:distillery, "~> 0.9"}]
   end
 
   # Aliases are shortcut or tasks specific to the current project.
