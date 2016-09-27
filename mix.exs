@@ -44,7 +44,8 @@ defmodule Mana.Mixfile do
      {:retry, "~> 0.5.0"},
      {:credo, "~> 0.4", only: [:dev, :test]},
      {:edeliver, "~> 1.4.0"},
-     {:distillery, "~> 0.9"}]
+     {:distillery, "~> 0.9"},
+     {:conform, "~> 2.1.1"}]
   end
 
   # Aliases are shortcut or tasks specific to the current project.

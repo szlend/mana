@@ -28,7 +28,10 @@ end
 # when running `mix release`, the first release in the file
 # will be used by default
 
+conform_prestart = Path.join(["#{:code.priv_dir(:conform)}", "bin", "pre_start.sh"])
+
 release :mana do
   set version: current_version(:mana)
+  set pre_start_hook: conform_prestart
+  plugin Conform.ReleasePlugin
 end
-
