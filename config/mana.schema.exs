@@ -234,6 +234,24 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "mana.Elixir.Mana.Repo.pool_size"
     ],
+    "kernel.sync_nodes_optional": [
+      commented: false,
+      datatype: [
+        list: :atom
+      ],
+      default: [],
+      doc: "Provide documentation for kernel.sync_nodes_optional here.",
+      hidden: false,
+      to: "kernel.sync_nodes_optional"
+    ],
+    "kernel.sync_nodes_timeout": [
+      commented: false,
+      datatype: :integer,
+      default: 10000,
+      doc: "Provide documentation for kernel.sync_nodes_timeout here.",
+      hidden: false,
+      to: "kernel.sync_nodes_timeout"
+    ],
     "logger.console.format": [
       commented: false,
       datatype: :binary,

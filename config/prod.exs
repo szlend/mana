@@ -17,4 +17,8 @@ config :mana, Mana.Repo,
   password: "",
   pool_size: 20
 
+config :kernel,
+  sync_nodes_optional: [],
+  sync_nodes_timeout: 10000
+
 config :logger, level: :info
