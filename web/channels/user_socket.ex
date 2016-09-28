@@ -11,9 +11,7 @@ defmodule Mana.UserSocket do
   transport :longpoll, Phoenix.Transports.LongPoll
 
   def connect(%{"token" => token}, socket) do
-    {:ok, user} = User.start_link(token, token)
     socket = assign(socket, :token, token)
-    socket = assign(socket, :user, user)
     {:ok, socket}
   end
 
