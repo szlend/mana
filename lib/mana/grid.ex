@@ -9,14 +9,12 @@ defmodule Mana.Grid do
   # Client
 
   def start_link({x, y}) do
-    GenServer.start_link(__MODULE__, {x, y}, name: via_grid({x, y}))
+    GenServer.start_link(__MODULE__, {x, y})
   end
 
   def size(), do: @size
   def seed(), do: @seed
-  def find({x, y}), do: :syn.find_by_key(key({x, y}))
   def key({x, y}), do: {:grid, {x, y}}
-  def via_grid({x, y}), do: {:via, :syn, key({x, y})}
 
   def reveal({x, y}) do
     GenServer.call(grid({x, y}), {:reveal, {x, y}})

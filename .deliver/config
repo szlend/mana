@@ -11,7 +11,7 @@ PRODUCTION_HOSTS="mana1.my.to mana2.my.to"
 PRODUCTION_USER="mana"
 DELIVER_TO="/opt"
 
-GIT_CLEAN_PATHS="_build rel priv/generated"
+GIT_CLEAN_PATHS="_build config lib priv rel priv/generated web"
 
 pre_erlang_clean_compile() {
   status "Preparing assets with: brunch build and phoenix.digest"

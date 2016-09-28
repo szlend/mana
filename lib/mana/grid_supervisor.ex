@@ -1,7 +1,6 @@
 defmodule Mana.GridSupervisor do
   use Supervisor
-  use Retry
-  alias Mana.{Ring, Grid}
+  alias Mana.Grid
 
   # Client
 
@@ -9,38 +8,30 @@ defmodule Mana.GridSupervisor do
     Supervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
 
-  def find_or_start_child({x, y}) do
-    case Supervisor.start_child(__MODULE__, [{x, y}]) do
-      {:ok, pid} -> {:ok, pid}
-      {:error, {:already_started, pid}} -> {:ok, pid}
-    end
+  def start_child({x, y}) do
+    Supervisor.start_child(__MODULE__, [{x, y}])
   end
 
-  def find_or_start_distributed_child({x, y}) do
-    retry with: exp_backoff |> expiry(10_000) do
-      node = Ring.find(Grid.key({x, y}))
-      case :rpc.call(node, __MODULE__, :find_or_start_child, [{x, y}]) do
-        {:ok, pid} -> {:ok, pid}
-        error -> {:error, error}
-      end
+  def register({x, y}) do
+    case Swarm.register_name(Grid.key({x, y}), __MODULE__, :start_child, [{x, y}]) do
+      {:ok, pid} -> pid
+      {:error, {:already_registered, pid}} -> pid
     end
   end
 
   def grid({x, y}) do
     {x, y} = Grid.position({x, y})
-    case Grid.find({x, y}) do
-      :undefined -> find_or_start_distributed_child({x, y}) |> unwrap
+    case Swarm.whereis_name(Grid.key({x, y})) do
+      :undefined -> register({x, y})
       pid -> pid
     end
   end
-
-  defp unwrap({:ok, result}), do: result
 
   # Server
 
   def init(_) do
     children = [
-      worker(Mana.Grid, [], restart: :transient)
+      worker(Mana.Grid, [], restart: :temporary)
     ]
     supervise(children, strategy: :simple_one_for_one)
   end

@@ -4,11 +4,7 @@ defmodule Mana do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    :syn.init()
-
     children = [
-      worker(:hash_ring, []),
-      worker(Mana.Ring, []),
       supervisor(Mana.Repo, []),
       supervisor(Mana.Endpoint, []),
       supervisor(Mana.GridSupervisor, [])
