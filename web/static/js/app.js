@@ -12,4 +12,5 @@ if (window.gamePage) {
   const network = new Network(game, token, name)
   network.connect()
   window.teleport = game.setCameraTileCoordinates.bind(game)
+  window.onbeforeunload = () => network.socket.disconnect()
 }
