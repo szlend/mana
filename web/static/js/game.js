@@ -302,7 +302,7 @@ export default class Engine {
   setCameraTileCoordinates(x, y) {
     const midX = Math.round(this.width / 2)
     const midY = Math.round(this.height / 2)
-    this.updateCamera(midX + x * this.tileSize, midY + y * this.tileSize)
+    this.updateCamera(x * this.tileSize - midX, y * this.tileSize - midY)
   }
 
   cameraMoveObserver() {
