@@ -47,7 +47,7 @@ defmodule Mana.MoveTracker do
 
 
   def handle_call(:last_move, _from, state) do
-    {:reply, {:ok, state.last_move}, state}
+    {:reply, state.last_move, state}
   end
 
   def top_scores(scores) do

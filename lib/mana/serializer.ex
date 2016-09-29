@@ -11,6 +11,9 @@ defmodule Mana.Serializer do
     Enum.into(scores, %{})
   end
 
+  def position(nil), do: nil
+  def position({x, y}), do: %{x: x, y: y}
+
   def user_move({user_id, {x, y}}), do: %{user_id: user_id, x: x, y: y}
   def user_move(nil), do: nil
 

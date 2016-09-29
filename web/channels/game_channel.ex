@@ -1,12 +1,13 @@
 defmodule Mana.GameChannel do
   use Mana.Web, :channel
-  alias Mana.{User, Grid}
+  alias Mana.{User, Grid, MoveTracker, Serializer}
 
   def join("game", %{"name" => name}, socket) do
     case User.register(name, self) do
       {:ok, user} ->
+        last_move = MoveTracker.last_move
         socket = assign(socket, :user, user)
-        {:ok, %{last_move: nil}, socket}
+        {:ok, %{last_move: Serializer.position(last_move)}, socket}
 
       {:error, :invalid_name} ->
         {:error, %{code: "invalid_name", message: "Username is invalid."}}
