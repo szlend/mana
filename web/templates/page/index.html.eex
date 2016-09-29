@@ -5,7 +5,7 @@
   <br>
   <br>
 
-  <%= form_for @conn, page_path(@conn, :join), [as: :params], fn f -> %>
+  <%= form_for @conn, game_path(@conn, :join), [as: :game], fn f -> %>
     <div class="row">
       <div class="col-sm-6 col-sm-offset-3">
         <div class="input-group">
