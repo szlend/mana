@@ -38,7 +38,7 @@ defmodule Mana.Mixfile do
      {:postgrex, "~> 0.12.0"},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:ecto, "~> 2.1.0-rc.0"},
+     {:ecto, github: "elixir-ecto/ecto", override: true},
      {:swarm, "~> 1.0"},
      {:credo, "~> 0.4", only: [:dev, :test]},
      {:edeliver, "~> 1.4.0"},

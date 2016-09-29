@@ -5,16 +5,9 @@ defmodule Mana.GridState do
   def save(%{seed: seed, size: size, from: {x, y}, moves: moves}) do
     unique_data = [seed: seed, size: size, x: x, y: y]
     data = {:data, :erlang.term_to_binary(moves)}
-
-    # Use upsert once https://github.com/elixir-ecto/ecto/issues/1717 is fixed
-    # Repo.insert_all("grids", [[data | unique_data]], on_conflict: [set: [data]])
-
-    query = from "grids", where: [seed: ^seed, size: ^size, x: ^x, y: ^y]
-    case Repo.one(from query, select: true) do
-      true -> Repo.update_all(query, set: [data])
-      nil -> Repo.insert_all("grids", [[data | unique_data]])
-    end
-
+    Repo.insert_all("grids", [[data | unique_data]],
+      on_conflict: [set: [data]],
+      conflict_target: [:seed, :size, :x, :y])
   end
 
   def load(state) do
