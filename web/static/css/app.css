@@ -17,9 +17,8 @@
 #console {
   background-image: url("/images/console-background.jpg");
   background-repeat: repeat;
-  padding: 10px;
-  border: 10px solid #FB0D1B;
-  border-style: inset;
+  padding: 2px;
+  border: 2px solid #000;
   font-family: "Courier New";
   color: #FFF;
   font-size: 16px;
@@ -31,37 +30,48 @@
     position: absolute;
     bottom: 0;
     width: 100%;
-    min-height: 190px;
   }
 
   .console__left-column {
     float: left;
     width: 45%;
-    margin-left: 10px;
+    margin-left: 5px;
+    overflow: hidden;
   }
 
   .console__right-column {
     float: right;
     width: 45%;
-    margin-right: 10px;
+    margin-right: 5px;
+    overflow: hidden;
   }
 }
 
 @media all and (orientation:landscape) {
+  #console {
+    padding: 10px;
+  }
+
   .oriented-console {
     position: fixed;
     width: 30%;
-    min-height: 40%;
+    max-width: 300px;
     right: 20px;
     top: 20px;
-    margin-left: -100px;
   }
 }
 
-.console__title {
-  text-align: center;
-  width: 100%;
-  font-size: 20px;
+@media all and (orientation:landscape) and (max-device-width: 720px) {
+  #console {
+    padding: 3px;
+    font-size: 10px;
+    max-width: 125px;
+  }
+
+  .oriented-console {
+    right: 5px;
+    top: 5px;
+  }
 }
 
 .console__player {

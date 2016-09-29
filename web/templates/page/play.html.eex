@@ -1,59 +1,36 @@
 <canvas id="game" data-token="<%= @token %>" data-size="<%= @size %>"></canvas>
-<!-- <div id="console" class="oriented-console">
-  <div class="console__title">Scores</div>
-
+<div id="console" class="oriented-console">
   <div class="console__left-column">
     <div class="console__player">
-      <div class="console__player-name">Jerry Seinfeld</div>
+      <div class="console__player-name">Jerry</div>
       <div class="console__player-score">542</div>
     </div>
 
     <div class="console__player">
-      <div class="console__player-name">George Costanza</div>
+      <div class="console__player-name">George</div>
       <div class="console__player-score">102</div>
     </div>
 
     <div class="console__player">
-      <div class="console__player-name">Elaine Banes</div>
+      <div class="console__player-name">Elaind</div>
       <div class="console__player-score">53</div>
     </div>
-
-    <div class="console__player">
-      <div class="console__player-name">Cosmo Kramer</div>
-      <div class="console__player-score">6253</div>
-    </div>
-
-    <div class="console__player">
-      <div class="console__player-name">Newman</div>
-      <div class="console__player-score">65</div>
-    </div>
-
   </div>
 
   <div class="console__right-column">
     <div class="console__player">
-      <div class="console__player-name">Frank Costanza</div>
+      <div class="console__player-name">Frank</div>
       <div class="console__player-score">2</div>
     </div>
 
     <div class="console__player">
-      <div class="console__player-name">Susan Ross</div>
+      <div class="console__player-name">Susan</div>
       <div class="console__player-score">965</div>
     </div>
 
     <div class="console__player">
-      <div class="console__player-name">Estelle Costanza</div>
+      <div class="console__player-name">Estelle</div>
       <div class="console__player-score">124</div>
     </div>
-
-    <div class="console__player">
-      <div class="console__player-name">Bob Sacamano</div>
-      <div class="console__player-score">641</div>
-    </div>
-
-      <div class="console__player">
-      <div class="console__player-name">Uncle Leo</div>
-      <div class="console__player-score">2363</div>
-    </div>
   </div>
-</div> -->
+</div>
