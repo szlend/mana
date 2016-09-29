@@ -51,6 +51,7 @@ defmodule Mana.Grid do
       last_saved_at: now_ms}
     :timer.send_interval(@sleep_check_interval, :sleep)
     :timer.send_interval(@save_interval, :save)
+    Swarm.join(:grid, self)
     {:ok, GridState.load(state)}
   end
 

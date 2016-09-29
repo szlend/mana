@@ -17,6 +17,9 @@ defmodule Mana.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    get "/play", PageController, :play
+    post "/join", PageController, :join
+
+    get "/play/:name", PageController, :play
+    get "/error", PageController, :error
   end
 end

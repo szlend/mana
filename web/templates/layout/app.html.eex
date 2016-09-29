@@ -14,10 +14,10 @@
 
   <body>
     <div class="container">
-      <% if flash = get_flash(@conn, :info) do %>
+      <%= if flash = get_flash(@conn, :info) do %>
         <p class="alert alert-info" role="alert"><%= flash %></p>
       <% end %>
-      <% if flash = get_flash(@conn, :error) do %>
+      <%= if flash = get_flash(@conn, :error) do %>
         <p class="alert alert-danger" role="alert"><%= flash %></p>
       <% end %>
 

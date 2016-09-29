@@ -1,11 +1,12 @@
 import {Socket} from "phoenix"
 
 export default class Network {
-  constructor(game, token) {
+  constructor(game, token, name) {
     this.game = game
     this.token = token
+    this.name = name
     this.socket = new Socket("/socket", {params: {token}})
-    this.channel = this.socket.channel("game")
+    this.channel = this.socket.channel("game", {name: this.name})
     this.grids = {}
     this.firstJoin = true
   }
@@ -21,19 +22,25 @@ export default class Network {
   }
 
   onGameJoin(data) {
-    console.log(`Joined game with users:`, data.users)
+    console.log("Joined game", data)
     if (this.firstJoin) {
+      this.game.run()
+      this.firstJoin = false
+
       if (data.last_move) {
         this.game.setCameraTileCoordinates(data.last_move.x, data.last_move.y)
       } else {
         this.game.setCameraTileCoordinates(0, 0)
       }
-      this.firstJoin = false
     }
   }
 
   onGameJoinError(resp) {
-    console.log(`Failed to join game, response:`, resp)
+    console.log("Failed to join game, response:", resp)
+    if (this.firstJoin && resp.message) {
+      const message = encodeURIComponent(resp.message)
+      window.location = `/error?message=${message}`
+    }
   }
 
   onGridJoin(data) {
@@ -43,7 +50,7 @@ export default class Network {
   }
 
   onGridJoinError(resp) {
-    console.log(`Failed to join grid, response:`, resp)
+    console.log("Failed to join grid, response:", resp)
   }
 
   onGridLeave(grid) {

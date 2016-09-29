@@ -24,4 +24,4 @@
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []},
   "postgrex": {:hex, :postgrex, "0.12.0", "bdeeb4c42768c47c3c92228e66c70357fe9a9384fbc9de06abba774b22dd0635", [:mix], [{:connection, "~> 1.0", [hex: :connection, optional: false]}, {:db_connection, "~> 1.0-rc.4", [hex: :db_connection, optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}]},
   "ranch": {:hex, :ranch, "1.2.1", "a6fb992c10f2187b46ffd17ce398ddf8a54f691b81768f9ef5f461ea7e28c762", [:make], []},
-  "swarm": {:hex, :swarm, "1.1.0", "a5c4b163e360f9f689f47d9be3b68cfbc024b2e3c24c094a0b872b7104ab5171", [:mix], [{:libring, "~> 0.1", [hex: :libring, optional: false]}, {:poison, "~> 2.2", [hex: :poison, optional: false]}]}}
+  "swarm": {:hex, :swarm, "1.1.1", "485ee4e56b00d829c723877a55cde250013ea20815b09b38af3c2f58ddd0a2f0", [:mix], [{:libring, "~> 0.1", [hex: :libring, optional: false]}, {:poison, "~> 2.2", [hex: :poison, optional: false]}]}}

@@ -4,5 +4,17 @@
   <img src="https://image.spreadshirtmedia.com/image-server/v1/designs/11129866.png" />
   <br>
   <br>
-  <%= link "Join game", to: page_path(@conn, :play), class: "btn btn-lg btn-primary" %>
+
+  <%= form_for @conn, page_path(@conn, :join), [as: :params], fn f -> %>
+    <div class="row">
+      <div class="col-sm-6 col-sm-offset-3">
+        <div class="input-group">
+          <%= text_input f, :name, class: "form-control", placeholder: "Enter your username..." %>
+          <span class="input-group-btn">
+            <%= submit "Play", class: "btn btn-primary" %>
+          </span>
+        </div>
+      </div>
+    </div>
+  <% end %>
 </div>

@@ -1,9 +1,19 @@
 defmodule Mana.GameChannel do
   use Mana.Web, :channel
-  alias Mana.Grid
+  alias Mana.{User, Grid}
 
-  def join("game", _payload, socket) do
-    {:ok, %{last_move: nil, users: []}, socket}
+  def join("game", %{"name" => name}, socket) do
+    case User.register(name) do
+      {:ok, user} ->
+        socket = assign(socket, :user, user)
+        {:ok, %{last_move: nil}, socket}
+
+      {:error, :invalid_name} ->
+        {:error, %{code: "invalid_name", message: "Username is invalid."}}
+
+      {:error, {:already_started, _}} ->
+        {:error, %{code: "name_taken", message: "Username has been taken."}}
+    end
   end
 
   def handle_in("reveal", %{"x" => x, "y" => y}, socket)

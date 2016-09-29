@@ -1,4 +1,4 @@
-<canvas id="game" data-token="<%= @token %>" data-size="<%= @size %>"></canvas>
+<canvas id="game" data-token="<%= @token %>" data-name="<%= @name %>" data-size="<%= @size %>"></canvas>
 <div id="console" class="oriented-console">
   <div class="console__left-column">
     <div class="console__player">
