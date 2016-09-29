@@ -7,6 +7,7 @@ export default class Network {
     this.socket = new Socket("/socket", {params: {token}})
     this.channel = this.socket.channel("game")
     this.grids = {}
+    this.firstJoin = true
   }
 
   connect() {
@@ -21,10 +22,13 @@ export default class Network {
 
   onGameJoin(data) {
     console.log(`Joined game with users:`, data.users)
-    if (data.last_move) {
-      this.game.setCameraTileCoordinates(data.last_move.x, data.last_move.y)
-    } else {
-      this.game.setCameraTileCoordinates(0, 0)
+    if (this.firstJoin) {
+      if (data.last_move) {
+        this.game.setCameraTileCoordinates(data.last_move.x, data.last_move.y)
+      } else {
+        this.game.setCameraTileCoordinates(0, 0)
+      }
+      this.firstJoin = false
     }
   }
 

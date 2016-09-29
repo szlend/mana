@@ -1,20 +1,23 @@
 defmodule Mana.Grid do
   use GenServer
   import Mana.GridSupervisor, only: [grid: 1]
-  alias Mana.{Board, Serializer, Endpoint}
+  alias Mana.{GridState, Board, Serializer, Endpoint}
 
-  @seed 1234
-  @size 50
+  @sleep_after 30_000
+  @sleep_check_interval 1_000
+  @save_interval 30_000
+  @save_after_moves 10
 
   # Client
 
-  def start_link({x, y}) do
-    GenServer.start_link(__MODULE__, {x, y})
+  def start_link(seed, size, {x, y}) do
+    GenServer.start_link(__MODULE__, {seed, size, {x, y}})
   end
 
-  def size(), do: @size
-  def seed(), do: @seed
   def key({x, y}), do: {:grid, {x, y}}
+  def seed(), do: Application.fetch_env!(:mana, :grid_seed)
+  def size(), do: Application.fetch_env!(:mana, :grid_size)
+  def topic(%{from: {x, y}}), do: "grid:#{x}:#{y}"
 
   def reveal({x, y}) do
     GenServer.call(grid({x, y}), {:reveal, {x, y}})
@@ -25,8 +28,8 @@ defmodule Mana.Grid do
   end
 
   def position({x, y}) do
-    x = round(Float.floor(x / @size) * @size)
-    y = round(Float.floor(y / @size) * @size)
+    x = round(Float.floor(x / size) * size)
+    y = round(Float.floor(y / size) * size)
     {x, y}
   end
 
@@ -36,10 +39,19 @@ defmodule Mana.Grid do
 
   # Server
 
-  def init({x, y}) do
-    state = %{from: {x, y}, to: {x + @size - 1, y + @size - 1},
-              seed: @seed, moves: %{}}
-    {:ok, state}
+  def init({seed, size, {x, y}}) do
+    state = %{
+      from: {x, y},
+      to: {x + size - 1, y + size - 1},
+      seed: seed,
+      size: size,
+      moves: %{},
+      moves_since_save: 0,
+      last_move_at: now_ms,
+      last_saved_at: now_ms}
+    :timer.send_interval(@sleep_check_interval, :sleep)
+    :timer.send_interval(@save_interval, :save)
+    {:ok, GridState.load(state)}
   end
 
   def handle_call({:reveal, {x, y}}, _from, state) do
@@ -55,7 +67,23 @@ defmodule Mana.Grid do
     new_moves = reveal(state, tile)
     moves = Map.merge(state.moves, new_moves)
     broadcast_moves(state, new_moves)
-    {:noreply, %{state | moves: moves}}
+    if state.moves_since_save == @save_after_moves, do: send(self, :save)
+    {:noreply, %{state | moves: moves,
+                         last_move_at: now_ms,
+                         moves_since_save: state.moves_since_save + 1}}
+  end
+
+  def handle_info(:save, state) do
+    {:noreply, save_state(state)}
+  end
+
+  def handle_info(:sleep, state) do
+    if now_ms - state.last_move_at > @sleep_after do
+      GridState.save(state)
+      {:stop, :normal, state}
+    else
+      {:noreply, state}
+    end
   end
 
   def reveal(state, tile) do
@@ -90,11 +118,20 @@ defmodule Mana.Grid do
     (x >= x1) and (y >= y1) and (x <= x2) and (y <= y2)
   end
 
-  def topic(%{from: {x, y}}), do: "grid:#{x}:#{y}"
+  def save_state(state) do
+    if state.moves_since_save > 0 do
+      GridState.save(state)
+      %{state | last_saved_at: now_ms, moves_since_save: 0}
+    else
+      state
+    end
+  end
 
   def broadcast_moves(_state, moves) when moves == %{}, do: nil
   def broadcast_moves(state, moves) do
     moves = Serializer.moves(moves)
     Endpoint.broadcast!(topic(state), "reveal", %{moves: moves})
   end
+
+  defp now_ms, do: :os.system_time(:millisecond)
 end

@@ -1,6 +1,5 @@
 defmodule Mana.UserSocket do
   use Phoenix.Socket
-  alias Mana.User
 
   ## Channels
   channel "game", Mana.GameChannel

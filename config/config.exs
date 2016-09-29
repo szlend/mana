@@ -7,7 +7,9 @@ use Mix.Config
 
 # General application configuration
 config :mana,
-  ecto_repos: [Mana.Repo]
+  ecto_repos: [Mana.Repo],
+  grid_seed: 9001,
+  grid_size: 50
 
 # Configures the endpoint
 config :mana, Mana.Endpoint,

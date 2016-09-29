@@ -31,7 +31,7 @@ defmodule Mana.GridSupervisor do
 
   def init(_) do
     children = [
-      worker(Mana.Grid, [], restart: :temporary)
+      worker(Mana.Grid, [Grid.seed, Grid.size], restart: :temporary)
     ]
     supervise(children, strategy: :simple_one_for_one)
   end
