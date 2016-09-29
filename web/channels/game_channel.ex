@@ -3,7 +3,7 @@ defmodule Mana.GameChannel do
   alias Mana.{User, Grid}
 
   def join("game", %{"name" => name}, socket) do
-    case User.register(name) do
+    case User.register(name, self) do
       {:ok, user} ->
         socket = assign(socket, :user, user)
         {:ok, %{last_move: nil}, socket}
@@ -18,7 +18,12 @@ defmodule Mana.GameChannel do
 
   def handle_in("reveal", %{"x" => x, "y" => y}, socket)
   when is_integer(x) and is_integer(y) do
-    Grid.reveal({x, y})
+    Grid.reveal(User.name(socket.assigns.user), {x, y})
+    {:noreply, socket}
+  end
+
+  def handle_info({:score, score}, socket) do
+    push(socket, "score", %{score: score})
     {:noreply, socket}
   end
 end

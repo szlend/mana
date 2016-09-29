@@ -68,6 +68,14 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       hidden: false,
       to: "phoenix.generators.binary_id"
     ],
+    "swarm.autocluster": [
+      commented: false,
+      datatype: :atom,
+      default: false,
+      doc: "Provide documentation for swarm.autocluster here.",
+      hidden: false,
+      to: "swarm.autocluster"
+    ],
     "mana.ecto_repos": [
       commented: false,
       datatype: [
@@ -79,6 +87,30 @@ See the moduledoc for `Conform.Schema.Validator` for more details and examples.
       doc: "Provide documentation for mana.ecto_repos here.",
       hidden: false,
       to: "mana.ecto_repos"
+    ],
+    "mana.move_tracker": [
+      commented: false,
+      datatype: :atom,
+      default: true,
+      doc: "Provide documentation for mana.move_tracker here.",
+      hidden: false,
+      to: "mana.move_tracker"
+    ],
+    "mana.grid_seed": [
+      commented: false,
+      datatype: :integer,
+      default: 9001,
+      doc: "Provide documentation for mana.grid_seed here.",
+      hidden: false,
+      to: "mana.grid_seed"
+    ],
+    "mana.grid_size": [
+      commented: false,
+      datatype: :integer,
+      default: 50,
+      doc: "Provide documentation for mana.grid_size here.",
+      hidden: false,
+      to: "mana.grid_size"
     ],
     "mana.Elixir.Mana.Endpoint.render_errors.accepts": [
       commented: false,

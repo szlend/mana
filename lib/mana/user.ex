@@ -3,9 +3,9 @@ defmodule Mana.User do
 
   # Client
 
-  def register(name) do
+  def register(name, channel) do
     case valid_name?(name) do
-      true -> GenServer.start_link(__MODULE__, name, name: via_name(name))
+      true -> GenServer.start_link(__MODULE__, {channel, name}, name: via_name(name))
       false -> {:error, :invalid_name}
     end
   end
@@ -21,14 +21,23 @@ defmodule Mana.User do
     GenServer.call(user, :name)
   end
 
+  def send_score(user, score) do
+    GenServer.cast(user, {:send_score, score})
+  end
+
   # Server
 
-  def init(name) do
+  def init({channel, name}) do
     :ok = Swarm.join(:user, self)
-    {:ok, %{name: name}}
+    {:ok, %{channel: channel, name: name}}
   end
 
   def handle_call(:name, _from, state) do
     {:reply, state.name, state}
+  end
+
+  def handle_cast({:send_score, score}, state) do
+    send(state.channel, {:score, score})
+    {:noreply, state}
   end
 end

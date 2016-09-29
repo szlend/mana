@@ -1,7 +1,7 @@
 defmodule Mana.Grid do
   use GenServer
   import Mana.GridSupervisor, only: [grid: 1]
-  alias Mana.{GridState, Board, Serializer, Endpoint}
+  alias Mana.{GridState, Board, MoveTracker, Serializer, Endpoint}
 
   @sleep_after 30_000
   @sleep_check_interval 1_000
@@ -19,8 +19,8 @@ defmodule Mana.Grid do
   def size(), do: Application.fetch_env!(:mana, :grid_size)
   def topic(%{from: {x, y}}), do: "grid:#{x}:#{y}"
 
-  def reveal({x, y}) do
-    GenServer.call(grid({x, y}), {:reveal, {x, y}})
+  def reveal(user, {x, y}) do
+    GenServer.call(grid({x, y}), {:reveal, user, {x, y}})
   end
 
   def moves({x, y}) do
@@ -55,8 +55,8 @@ defmodule Mana.Grid do
     {:ok, GridState.load(state)}
   end
 
-  def handle_call({:reveal, {x, y}}, _from, state) do
-    GenServer.cast(self, {:reveal, {x, y}})
+  def handle_call({:reveal, user, {x, y}}, _from, state) do
+    GenServer.cast(self, {:reveal, user, {x, y}, :start})
     {:reply, :ok, state}
   end
 
@@ -64,11 +64,24 @@ defmodule Mana.Grid do
     {:reply, state.moves, state}
   end
 
-  def handle_cast({:reveal, tile}, state) do
-    new_moves = reveal(state, tile)
+  def handle_cast({:reveal, user, tile, progress}, state) do
+    new_moves = do_reveal(state, tile)
     moves = Map.merge(state.moves, new_moves)
+
+    # broadcast moves to all players
     broadcast_moves(state, new_moves)
-    if state.moves_since_save == @save_after_moves, do: send(self, :save)
+
+    # log last move if start of reveal
+    if progress == :start do
+      type = moves[tile]
+      MoveTracker.move(user, tile, type)
+    end
+
+    # persist moves into database if conditions met
+    if state.moves_since_save == @save_after_moves do
+      send(self, :save)
+    end
+
     {:noreply, %{state | moves: moves,
                          last_move_at: now_ms,
                          moves_since_save: state.moves_since_save + 1}}
@@ -87,15 +100,15 @@ defmodule Mana.Grid do
     end
   end
 
-  def reveal(state, tile) do
+  def do_reveal(state, tile) do
     if Board.mine?(state.seed, tile) do
       %{tile => Board.make_mine()}
     else
-      reveal_empty(state, %{}, tile)
+      do_reveal_empty(state, %{}, tile)
     end
   end
 
-  def reveal_empty(state, moves, tile) do
+  def do_reveal_empty(state, moves, tile) do
     if Map.has_key?(state.moves, tile) or Map.has_key?(moves, tile) do
       moves
     else
@@ -105,9 +118,9 @@ defmodule Mana.Grid do
 
       if count == 0 do
         {local, neigbour} = Enum.partition(tiles, &tile_inside_grid?(state, &1))
-        Enum.each(neigbour, &GenServer.cast(grid(&1), {:reveal, &1}))
+        Enum.each(neigbour, &GenServer.cast(grid(&1), {:reveal, &1, :continue}))
         Enum.reduce(local, moves,
-          fn tile, moves -> reveal_empty(state, moves, tile) end)
+          fn tile, moves -> do_reveal_empty(state, moves, tile) end)
       else
         moves
       end

@@ -1,5 +1,6 @@
 defmodule Mana.MoveTracker do
   use GenServer
+  alias Mana.{User, Serializer, Endpoint}
 
   @score_multiplier 100
   @mine_points -50
@@ -8,38 +9,56 @@ defmodule Mana.MoveTracker do
   # Client
 
   def start_link do
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+    GenServer.start_link(__MODULE__, [], name: via_swarm)
   end
 
-  def move(user_id, tile, moves) do
-    GenServer.call(__MODULE__, {:move, user_id, tile, moves})
+  def via_swarm(), do: {:via, :swarm, :move_tracker}
+
+  def move(user, tile, type) do
+    GenServer.call(via_swarm, {:move, user, tile, type})
   end
 
   def last_move() do
-    GenServer.call(__MODULE__, :last_move)
+    GenServer.call(via_swarm, :last_move)
   end
 
   # Server
 
   def init(_) do
-    {:ok, %{last_move: nil, scores: %{}}}
+    {:ok, %{last_move: nil, scores: %{}, top_scores: []}}
   end
 
-  def handle_call({:move, user_id, tile, moves}, _from, state) do
-    state = accumulate_score(state, user_id, tile, moves)
-    state = %{state | last_move: {user_id, tile}}
-    score = state.scores[user_id]
-    {:reply, {:ok, score}, state}
+  def handle_call({:move, user, tile, type}, _from, state) do
+    IO.puts("#{user} revealed #{inspect tile}, #{inspect type}")
+    new_scores = update_score(state.scores, user, type)
+
+    # send the user their new scores
+    User.send_score(User.via_name(user), new_scores[user])
+
+    # broadcast new best scores if changed
+    top_scores = top_scores(new_scores)
+    if state.top_scores != top_scores do
+      Endpoint.broadcast!("game", "scores", %{scores: Serializer.scores(top_scores)})
+    end
+
+    state = %{state | last_move: tile, scores: new_scores, top_scores: top_scores}
+    {:reply, :ok, state}
   end
+
 
   def handle_call(:last_move, _from, state) do
     {:reply, {:ok, state.last_move}, state}
   end
 
-  def accumulate_score(state, user_id, tile, moves) do
-    score = state.scores[user_id] || 0
-    scores = Map.put(state.scores, user_id, score + points(moves[tile]))
-    %{state | scores: scores}
+  def top_scores(scores) do
+    scores
+    |> Enum.sort(fn {_, score1}, {_, score2} -> score1 > score2 end)
+    |> Enum.take(6)
+  end
+
+  def update_score(scores, user, type) do
+    score = scores[user] || 0
+    Map.put(scores, user, score + points(type))
   end
 
   def points(:mine), do: @mine_points * @score_multiplier

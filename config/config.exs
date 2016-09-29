@@ -8,6 +8,7 @@ use Mix.Config
 # General application configuration
 config :mana,
   ecto_repos: [Mana.Repo],
+  move_tracker: true,
   grid_seed: 9001,
   grid_size: 50
 

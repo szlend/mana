@@ -19,6 +19,8 @@ export default class Network {
     this.channel.join()
       .receive("ok", this.onGameJoin.bind(this))
       .receive("error", this.onGameJoinError.bind(this))
+    this.channel.on("score", this.onScoreUpdate.bind(this))
+    this.channel.on("scores", this.onScoresUpdate.bind(this))
   }
 
   onGameJoin(data) {
@@ -41,6 +43,14 @@ export default class Network {
       const message = encodeURIComponent(resp.message)
       window.location = `/error?message=${message}`
     }
+  }
+
+  onScoreUpdate(data) {
+    console.log("Own score updated:", data.score)
+  }
+
+  onScoresUpdate(data) {
+    console.log("Top scores updated:", data.scores)
   }
 
   onGridJoin(data) {

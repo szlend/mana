@@ -7,6 +7,10 @@ defmodule Mana.Serializer do
     Enum.map(mines, fn {x, y} -> [x, y] end)
   end
 
+  def scores(scores) do
+    Enum.into(scores, %{})
+  end
+
   def user_move({user_id, {x, y}}), do: %{user_id: user_id, x: x, y: y}
   def user_move(nil), do: nil
 
