@@ -22,3 +22,5 @@ config :kernel,
   sync_nodes_timeout: 10000
 
 config :logger, level: :info
+
+config :swarm, node_whitelist: [~r/^mana@/]
