@@ -3,10 +3,8 @@ defmodule Mana.Grid do
   import Mana.GridSupervisor, only: [grid: 1]
   alias Mana.{GridState, Board, MoveTracker, Serializer, Endpoint}
 
-  @sleep_after 30_000
-  @sleep_check_interval 1_000
-  @save_interval 30_000
   @save_after_moves 10
+  @sleep_after_ms 30_000
 
   # Client
 
@@ -40,6 +38,10 @@ defmodule Mana.Grid do
   # Server
 
   def init({seed, size, {x, y}}) do
+    Swarm.join(:grid, self)
+    Process.flag(:trap_exit, true)
+    :timer.send_interval(1_000, :sleep)
+
     state = %{
       from: {x, y},
       to: {x + size - 1, y + size - 1},
@@ -47,11 +49,7 @@ defmodule Mana.Grid do
       size: size,
       moves: %{},
       moves_since_save: 0,
-      last_move_at: now_ms,
-      last_saved_at: now_ms}
-    :timer.send_interval(@sleep_check_interval, :sleep)
-    :timer.send_interval(@save_interval, :save)
-    Swarm.join(:grid, self)
+      last_move_at: now_ms}
     {:ok, GridState.load(state)}
   end
 
@@ -78,27 +76,25 @@ defmodule Mana.Grid do
     end
 
     # persist moves into database if conditions met
-    if state.moves_since_save == @save_after_moves do
-      send(self, :save)
-    end
+    state = save_state_after_moves(state, @save_after_moves)
 
-    {:noreply, %{state | moves: moves,
-                         last_move_at: now_ms,
-                         moves_since_save: state.moves_since_save + 1}}
-  end
-
-  def handle_info(:save, state) do
-    {:noreply, save_state(state)}
+    {:noreply, %{state | moves: moves, last_move_at: now_ms}}
   end
 
   def handle_info(:sleep, state) do
-    if now_ms - state.last_move_at > @sleep_after do
-      GridState.save(state)
+    if now_ms - state.last_move_at > @sleep_after_ms do
       {:stop, :normal, state}
     else
       {:noreply, state}
     end
   end
+
+  def terminate(_reason, state) do
+    if state.moves_since_save > 0 do
+      GridState.save(state)
+    end
+  end
+
 
   def do_reveal(state, tile) do
     if Board.mine?(state.seed, tile) do
@@ -132,12 +128,12 @@ defmodule Mana.Grid do
     (x >= x1) and (y >= y1) and (x <= x2) and (y <= y2)
   end
 
-  def save_state(state) do
-    if state.moves_since_save > 0 do
+  def save_state_after_moves(state, moves) do
+    if state.moves_since_save == moves do
       GridState.save(state)
-      %{state | last_saved_at: now_ms, moves_since_save: 0}
+      %{state | moves_since_save: 0}
     else
-      state
+      %{state | moves_since_save: state.moves_since_save + 1}
     end
   end
 

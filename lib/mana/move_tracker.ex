@@ -29,7 +29,6 @@ defmodule Mana.MoveTracker do
   end
 
   def handle_call({:move, user, tile, type}, _from, state) do
-    IO.puts("#{user} revealed #{inspect tile}, #{inspect type}")
     new_scores = update_score(state.scores, user, type)
 
     # send the user their new scores
