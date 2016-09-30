@@ -9,17 +9,17 @@ defmodule Mana.MoveTracker do
   # Client
 
   def start_link do
-    GenServer.start_link(__MODULE__, [], name: via_swarm)
+    GenServer.start_link(__MODULE__, [], name: via_global)
   end
 
-  def via_swarm(), do: {:via, :swarm, :move_tracker}
+  def via_global(), do: {:via, :global, :move_tracker}
 
   def move(user, tile, type) do
-    GenServer.call(via_swarm, {:move, user, tile, type})
+    GenServer.call(via_global, {:move, user, tile, type})
   end
 
   def last_move() do
-    GenServer.call(via_swarm, :last_move)
+    GenServer.call(via_global, :last_move)
   end
 
   # Server
