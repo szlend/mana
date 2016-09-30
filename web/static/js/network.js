@@ -55,8 +55,8 @@ export default class Network {
 
   onGridJoin(data) {
     console.log(`Joined grid (${data.x}, ${data.y})`, data)
-    this.game.addMoves(data.moves)
     this.game.addMines(data.mines)
+    this.game.addMoves(data.moves)
   }
 
   onGridJoinError(resp) {
