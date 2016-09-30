@@ -2,7 +2,7 @@ defmodule Mana.MoveTracker do
   use GenServer
   alias Mana.{User, Serializer, Endpoint}
 
-  @score_multiplier 100
+  @score_multiplier 1
   @mine_points -50
   @multi_reveal_points 1
 
