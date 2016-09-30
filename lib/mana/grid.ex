@@ -63,7 +63,7 @@ defmodule Mana.Grid do
   end
 
   def handle_cast({:reveal, user, tile, progress}, state) do
-    new_moves = do_reveal(state, tile)
+    new_moves = do_reveal(state, user, tile)
     moves = Map.merge(state.moves, new_moves)
 
     # broadcast moves to all players
@@ -96,15 +96,15 @@ defmodule Mana.Grid do
   end
 
 
-  def do_reveal(state, tile) do
+  def do_reveal(state, user, tile) do
     if Board.mine?(state.seed, tile) do
       %{tile => Board.make_mine()}
     else
-      do_reveal_empty(state, %{}, tile)
+      do_reveal_empty(state, %{}, user, tile)
     end
   end
 
-  def do_reveal_empty(state, moves, tile) do
+  def do_reveal_empty(state, moves, user, tile) do
     if Map.has_key?(state.moves, tile) or Map.has_key?(moves, tile) do
       moves
     else
@@ -114,9 +114,9 @@ defmodule Mana.Grid do
 
       if count == 0 do
         {local, neigbour} = Enum.partition(tiles, &tile_inside_grid?(state, &1))
-        Enum.each(neigbour, &GenServer.cast(grid(&1), {:reveal, &1, :continue}))
+        Enum.each(neigbour, &GenServer.cast(grid(&1), {:reveal, user, &1, :continue}))
         Enum.reduce(local, moves,
-          fn tile, moves -> do_reveal_empty(state, moves, tile) end)
+          fn tile, moves -> do_reveal_empty(state, moves, user, tile) end)
       else
         moves
       end
