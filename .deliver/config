@@ -38,3 +38,10 @@ pre_erlang_clean_compile() {
     APP='$APP' MIX_ENV='$TARGET_MIX_ENV' $MIX_CMD phoenix.digest $SILENCE
   "
 }
+
+post_upgrade_release() {
+  __remote "
+    # fix Distillery bug https://github.com/bitwalker/distillery/issues/91
+    cp '$DELIVER_TO/$APP/releases/$APP.rel' '$DELIVER_TO/$APP/releases/$VERSION/$APP.rel'
+  "
+}
