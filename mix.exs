@@ -19,7 +19,7 @@ defmodule Mana.Mixfile do
   def application do
     [mod: {Mana, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :swarm, :edeliver]]
+                    :phoenix_ecto, :postgrex, :swarm, :conform, :edeliver]]
   end
 
   # Specifies which paths to compile per environment.
