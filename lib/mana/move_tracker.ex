@@ -3,7 +3,7 @@ defmodule Mana.MoveTracker do
   alias Mana.{User, Serializer, Endpoint}
 
   @score_multiplier 100
-  @mine_points -50
+  @mine_points -10
   @multi_reveal_points 1
 
   # Client
