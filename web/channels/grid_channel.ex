@@ -6,7 +6,7 @@ defmodule Mana.GridChannel do
     {x, y} = parse_coordinates(grid)
     if Grid.valid_position?({x, y}) do
       moves = Grid.moves({x, y}) |> Serializer.moves
-      mines = Board.mines(Grid.seed(), {x, y}, Grid.size()) |> Serializer.mines
+      mines = get_mines({x, y}) |> Serializer.mines
       {:ok, %{x: x, y: y, moves: moves, mines: mines}, socket}
     else
       {:error, %{reason: "Invalid grid position"}, socket}
@@ -17,5 +17,13 @@ defmodule Mana.GridChannel do
     [_, x, y] = Regex.run(~r/^(-?[0-9]+):(-?[0-9]+)$/, grid)
     {{x, _}, {y, _}} = {Integer.parse(x), Integer.parse(y)}
     {x, y}
+  end
+
+  def get_mines({x, y}) do
+    if Application.fetch_env!(:mana, :grid_flags) do
+      Board.mines(Grid.seed(), {x, y}, Grid.size())
+    else
+      []
+    end
   end
 end

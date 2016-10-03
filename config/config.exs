@@ -10,7 +10,8 @@ config :mana,
   ecto_repos: [Mana.Repo],
   move_tracker: true,
   grid_seed: 9001,
-  grid_size: 50
+  grid_size: 50,
+  grid_flags: false
 
 # Configures the endpoint
 config :mana, Mana.Endpoint,
