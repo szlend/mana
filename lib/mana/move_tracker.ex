@@ -22,6 +22,14 @@ defmodule Mana.MoveTracker do
     GenServer.call(via_global, :last_move)
   end
 
+  def own_score(user) do
+    GenServer.call(via_global, {:own_score, user})
+  end
+
+  def top_scores() do
+    GenServer.call(via_global, :top_scores)
+  end
+
   # Server
 
   def init(_) do
@@ -44,9 +52,16 @@ defmodule Mana.MoveTracker do
     {:reply, :ok, state}
   end
 
-
   def handle_call(:last_move, _from, state) do
     {:reply, state.last_move, state}
+  end
+
+  def handle_call({:own_score, user}, _from, state) do
+    {:reply, Map.get(state.scores, user, 0), state}
+  end
+
+  def handle_call(:top_scores, _from, state) do
+    {:reply, state.top_scores, state}
   end
 
   def top_scores(scores) do

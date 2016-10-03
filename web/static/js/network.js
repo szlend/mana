@@ -1,13 +1,17 @@
 import {Socket} from "phoenix"
 
 export default class Network {
-  constructor(game, token, name) {
+  constructor(game, token, name, playerDivs, scoreDivs) {
     this.game = game
     this.token = token
     this.name = name
     this.socket = new Socket("/socket", {params: {token}})
     this.channel = this.socket.channel("game", {name: this.name})
     this.grids = {}
+    this.score = 0
+    this.scores = {}
+    this.playerDivs = playerDivs
+    this.scoreDivs = scoreDivs
     this.firstJoin = true
   }
 
@@ -28,12 +32,17 @@ export default class Network {
     if (this.firstJoin) {
       this.game.run()
       this.firstJoin = false
+      console.log(data)
+      this.score = data.score
+      this.scores = data.scores
 
       if (data.last_move) {
         this.game.setCameraTileCoordinates(data.last_move.x, data.last_move.y)
       } else {
         this.game.setCameraTileCoordinates(0, 0)
       }
+
+      this.updateScores()
     }
   }
 
@@ -46,11 +55,27 @@ export default class Network {
   }
 
   onScoreUpdate(data) {
-    console.log("Own score updated:", data.score)
+    this.score = data.score
+    this.updateScores()
   }
 
   onScoresUpdate(data) {
-    console.log("Top scores updated:", data.scores)
+    this.scores = data.scores
+    this.updateScores()
+  }
+
+  updateScores() {
+    const ownEntry = this.scores.find(entry => entry.name === this.name) || this.scores[this.scores.length - 1]
+    ownEntry.name = this.name
+    ownEntry.score = this.score
+
+    for (const i in this.scores) {
+      const entry = this.scores[i]
+      this.playerDivs[i].innerText = entry.name
+      this.scoreDivs[i].innerText = entry.score.toString()
+      this.playerDivs[i].style.color = entry.name === this.name ? "yellow" : "white"
+      this.scoreDivs[i].style.color = entry.name === this.name ? "yellow" : "white"
+    }
   }
 
   onGridJoin(data) {

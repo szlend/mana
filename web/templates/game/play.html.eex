@@ -2,35 +2,35 @@
 <div id="console" class="oriented-console">
   <div class="console__left-column">
     <div class="console__player">
-      <div class="console__player-name">Jerry</div>
-      <div class="console__player-score">542</div>
+      <div class="console__player-name"></div>
+      <div class="console__player-score"></div>
     </div>
 
     <div class="console__player">
-      <div class="console__player-name">George</div>
-      <div class="console__player-score">102</div>
+      <div class="console__player-name"></div>
+      <div class="console__player-score"></div>
     </div>
 
     <div class="console__player">
-      <div class="console__player-name">Elaind</div>
-      <div class="console__player-score">53</div>
+      <div class="console__player-name"></div>
+      <div class="console__player-score"></div>
     </div>
   </div>
 
   <div class="console__right-column">
     <div class="console__player">
-      <div class="console__player-name">Frank</div>
-      <div class="console__player-score">2</div>
+      <div class="console__player-name"></div>
+      <div class="console__player-score"></div>
     </div>
 
     <div class="console__player">
-      <div class="console__player-name">Susan</div>
-      <div class="console__player-score">965</div>
+      <div class="console__player-name"></div>
+      <div class="console__player-score"></div>
     </div>
 
     <div class="console__player">
-      <div class="console__player-name">Estelle</div>
-      <div class="console__player-score">124</div>
+      <div class="console__player-name"></div>
+      <div class="console__player-score"></div>
     </div>
   </div>
 </div>

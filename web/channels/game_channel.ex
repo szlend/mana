@@ -5,9 +5,11 @@ defmodule Mana.GameChannel do
   def join("game", %{"name" => name}, socket) do
     case User.register(name, self) do
       {:ok, user} ->
-        last_move = MoveTracker.last_move
         socket = assign(socket, :user, user)
-        {:ok, %{last_move: Serializer.position(last_move)}, socket}
+        last_move = MoveTracker.last_move |> Serializer.position
+        scores = MoveTracker.top_scores |> Serializer.scores
+        score = MoveTracker.own_score(name)
+        {:ok, %{last_move: last_move, score: score, scores: scores}, socket}
 
       {:error, :invalid_name} ->
         {:error, %{code: "invalid_name", message: "Username is invalid."}}

@@ -8,7 +8,7 @@ defmodule Mana.Serializer do
   end
 
   def scores(scores) do
-    Enum.into(scores, %{})
+    Enum.map(scores, fn {name, score} -> %{name: name, score: score} end)
   end
 
   def position(nil), do: nil
