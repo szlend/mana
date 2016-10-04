@@ -65,9 +65,13 @@ export default class Network {
   }
 
   updateScores() {
-    const ownEntry = this.scores.find(entry => entry.name === this.name) || this.scores[this.scores.length - 1]
-    ownEntry.name = this.name
-    ownEntry.score = this.score
+    let ownEntry = null
+    if (this.scores.length === 0) {
+      ownEntry = this.scores.push({name: this.name, score: this.score})
+    } else {
+      ownEntry = this.scores.find(entry => entry.name === this.name)
+      ownEntry = ownEntry || this.scores[this.scores.length - 1]
+    }
 
     for (const i in this.scores) {
       const entry = this.scores[i]
