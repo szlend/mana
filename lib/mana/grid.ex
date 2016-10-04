@@ -98,9 +98,17 @@ defmodule Mana.Grid do
 
   def do_reveal(state, user, tile) do
     if Board.mine?(state.seed, tile) do
-      %{tile => Board.make_mine()}
+      do_reveal_mine(state, tile)
     else
       do_reveal_empty(state, %{}, user, tile)
+    end
+  end
+
+  def do_reveal_mine(state, tile) do
+    if Map.has_key?(state.moves, tile) do
+      %{}
+    else
+      %{tile => Board.make_mine()}
     end
   end
 
