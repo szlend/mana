@@ -70,7 +70,7 @@ defmodule Mana.Grid do
     broadcast_moves(state, new_moves)
 
     # log last move if start of reveal
-    if progress == :start do
+    if progress == :start && new_moves != %{} do
       type = moves[tile]
       MoveTracker.move(user, tile, type)
     end
