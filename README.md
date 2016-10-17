@@ -36,6 +36,5 @@ way would be to have each node be responsible for it's own players' scores
 - Player scores are not persisted in the database
 - Net-splits and topology changes are not handled, so some data loss may occur
 - Rendering in JavaScript breaks down above `MAX_SAFE_INTEGER`. This shouldn't
-be too hard to fix by using some implementation of BigInt, and clamping the
-rendering coordinates
+be too hard to fix by using some implementation of BigInt, and cycling through coordinates behind the scenes
 - Use some form of compression for streaming in large number of moves
