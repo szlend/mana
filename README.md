@@ -24,7 +24,7 @@ to sleep and persist their state in the database after inactivity or a crash.
 
 This design has many advantages:
 - It allows us to scale horizontally by distributing the grids among nodes
-- It gives us fault tolerance by isolating errors to only one section
+- It gives us fault tolerance by isolating errors only to that section
 - It partitions the grids so that players are only subscribed to parts of the
 map that's visible to them
 - It doesn't have to query the database every time a move is made
