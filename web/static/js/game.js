@@ -346,7 +346,7 @@ export default class Engine {
         .map(upEvent => [upEvent.clientX, upEvent.clientY])
         .filter(p2 => dist(p1, p2) <= this.scale)
         .map(([x, y]) => this.getScreenTileCoordinates(x, y))
-        .takeUntil(this.mouseUp)
+        .take(1)
     })
 
     const touch = this.touchStart.flatMap(startEvent => {
@@ -355,7 +355,7 @@ export default class Engine {
         .map(endEvent => [endEvent.changedTouches[0].clientX, endEvent.changedTouches[0].clientY])
         .filter(p2 => dist(p1, p2) <= this.scale)
         .map(([x, y]) => this.getScreenTileCoordinates(x, y))
-        .takeUntil(this.mouseUp)
+        .take(1)
     })
 
     return Rx.Observable.merge(mouse, touch)
